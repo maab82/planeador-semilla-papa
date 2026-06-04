@@ -6,7 +6,6 @@ export interface PlanningState {
   kgHaPersonalizado: number;
   distanciaSurcos: number;
   tuberculosMetro: number;
-  usarTuberculosMetro: boolean;
 }
 
 export interface HistoricalSeason {

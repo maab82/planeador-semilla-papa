@@ -33,5 +33,4 @@ export const samplePlanning: PlanningState = {
   kgHaPersonalizado: 4633,
   distanciaSurcos: 90,
   tuberculosMetro: 8,
-  usarTuberculosMetro: false,
 };

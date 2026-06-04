@@ -1,20 +1,18 @@
+import { AlertTriangle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { calcularResultados } from '../../utils/calculations';
 import { AvailableSeedCard } from '../results/AvailableSeedCard';
 import { EstimatedPopulationCard } from '../results/EstimatedPopulationCard';
-import { PlantingCapacityCard } from '../results/PlantingCapacityCard';
-import { MetaComparisonCard } from '../results/MetaComparisonCard';
-import { RequiredTonnageCard } from '../results/RequiredTonnageCard';
+import { HistoricoCard } from '../results/HistoricoCard';
+import { PoblacionalCard } from '../results/PoblacionalCard';
+import { MethodDifferenceCard } from '../results/MethodDifferenceCard';
 import { PlantingComparisonChart } from '../charts/PlantingComparisonChart';
-import { AlertTriangle } from 'lucide-react';
 
 export function ResultsTab() {
   const { inventory, sampling, planning } = useApp();
   const results = calcularResultados(inventory, sampling, planning);
 
-  const hasInventory = results.arpillasTotales > 0;
-
-  if (!hasInventory) {
+  if (results.arpillasTotales === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4 text-center">
         <div className="bg-yellow-100 rounded-full p-4">
@@ -28,33 +26,58 @@ export function ResultsTab() {
     );
   }
 
+  const { historico, poblacional, hectareasObjetivo } = results;
+
   return (
     <div className="space-y-4">
-      <div className="bg-green-800 text-white rounded-xl p-4 text-center">
-        <p className="text-green-200 text-sm font-medium mb-1">Respuesta a su pregunta:</p>
-        <p className="text-xl font-bold">
-          Con la semilla disponible puede sembrar{' '}
-          <span className="text-3xl text-green-300">{results.hectareasPostbles.toFixed(1)} ha</span>
-        </p>
-        <p className="text-green-300 text-sm mt-1">
-          {results.alcanza
-            ? `✓ Alcanza para la meta de ${results.hectareasObjetivo} ha (excedente de ${Math.abs(results.diferenciaHectareas).toFixed(1)} ha)`
-            : `✗ Faltan ${Math.abs(results.diferenciaHectareas).toFixed(1)} ha para cumplir la meta de ${results.hectareasObjetivo} ha`}
-        </p>
+
+      {/* Banner de respuesta rápida */}
+      <div className="bg-green-800 text-white rounded-xl p-4">
+        <p className="text-green-200 text-sm font-medium mb-2 text-center">¿Para cuántas hectáreas alcanza la semilla disponible?</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="bg-green-700 rounded-xl p-3 text-center">
+            <p className="text-green-300 text-xs font-medium mb-1">Método Histórico</p>
+            <p className="text-3xl font-black text-white">{historico.hectareas.toFixed(1)} ha</p>
+            <p className={`text-xs mt-1 font-medium ${historico.alcanza ? 'text-green-300' : 'text-red-300'}`}>
+              {historico.alcanza
+                ? `✓ Excedente ${Math.abs(historico.diferencia).toFixed(1)} ha`
+                : `✗ Déficit ${Math.abs(historico.diferencia).toFixed(1)} ha`}
+            </p>
+          </div>
+          <div className={`rounded-xl p-3 text-center ${poblacional.disponible ? 'bg-blue-700' : 'bg-green-700/50'}`}>
+            <p className="text-blue-200 text-xs font-medium mb-1">Método Poblacional</p>
+            {poblacional.disponible ? (
+              <>
+                <p className="text-3xl font-black text-white">{poblacional.hectareas.toFixed(1)} ha</p>
+                <p className={`text-xs mt-1 font-medium ${poblacional.alcanza ? 'text-blue-200' : 'text-red-300'}`}>
+                  {poblacional.alcanza
+                    ? `✓ Excedente ${Math.abs(poblacional.diferencia).toFixed(1)} ha`
+                    : `✗ Déficit ${Math.abs(poblacional.diferencia).toFixed(1)} ha`}
+                </p>
+              </>
+            ) : (
+              <p className="text-green-300 text-xs mt-2">Sin muestreos registrados</p>
+            )}
+          </div>
+        </div>
       </div>
 
+      {/* Inventario + Población */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <AvailableSeedCard results={results} />
         <EstimatedPopulationCard results={results} />
       </div>
 
+      {/* Dos métodos lado a lado */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <PlantingCapacityCard results={results} />
-        <MetaComparisonCard results={results} />
+        <HistoricoCard historico={historico} hectareasObjetivo={hectareasObjetivo} />
+        <PoblacionalCard poblacional={poblacional} hectareasObjetivo={hectareasObjetivo} />
       </div>
 
-      {!results.alcanza && <RequiredTonnageCard results={results} />}
+      {/* Diferencia entre métodos */}
+      <MethodDifferenceCard historico={historico} poblacional={poblacional} />
 
+      {/* Gráfica */}
       <PlantingComparisonChart results={results} />
     </div>
   );
