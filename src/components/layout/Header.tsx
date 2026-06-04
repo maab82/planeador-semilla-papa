@@ -5,11 +5,11 @@ import { useApp } from '../../context/AppContext';
 import { useRef } from 'react';
 
 export function Header() {
-  const { inventory, sampling, planning, setInventory, setSampling, setPlanning } = useApp();
+  const { inventory, sampling, planning, notas, setInventory, setSampling, setPlanning, setNotas } = useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleExport() {
-    exportarDatos(inventory, sampling, planning);
+    exportarDatos(inventory, sampling, planning, notas);
   }
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
@@ -20,9 +20,10 @@ export function Header() {
       setInventory(data.inventory);
       setSampling(data.sampling);
       setPlanning(data.planning);
+      setNotas(data.notas);
       alert('Datos importados correctamente');
-    } catch {
-      alert('Error al importar el archivo. Verifique que sea un archivo válido.');
+    } catch (err) {
+      alert(`Error al importar: ${err instanceof Error ? err.message : 'Archivo inválido'}`);
     }
     e.target.value = '';
   }

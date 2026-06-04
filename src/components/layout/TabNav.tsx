@@ -1,6 +1,6 @@
-import { Package, FlaskConical, Target, BarChart3, ClipboardCheck } from 'lucide-react';
+import { Package, FlaskConical, Target, BarChart3, ClipboardCheck, BookOpen } from 'lucide-react';
 
-export type TabId = 'inventario' | 'muestreos' | 'planeacion' | 'resultados' | 'validacion';
+export type TabId = 'inventario' | 'muestreos' | 'planeacion' | 'resultados' | 'notas' | 'validacion';
 
 interface Tab {
   id: TabId;
@@ -9,11 +9,12 @@ interface Tab {
 }
 
 const tabs: Tab[] = [
-  { id: 'inventario', label: 'Inventario', icon: <Package size={18} /> },
-  { id: 'muestreos', label: 'Muestreos', icon: <FlaskConical size={18} /> },
-  { id: 'planeacion', label: 'Planeación', icon: <Target size={18} /> },
-  { id: 'resultados', label: 'Resultados', icon: <BarChart3 size={18} /> },
-  { id: 'validacion', label: 'Validación', icon: <ClipboardCheck size={18} /> },
+  { id: 'inventario',  label: 'Inventario',  icon: <Package size={18} /> },
+  { id: 'muestreos',   label: 'Muestreos',   icon: <FlaskConical size={18} /> },
+  { id: 'planeacion',  label: 'Planeación',  icon: <Target size={18} /> },
+  { id: 'resultados',  label: 'Resultados',  icon: <BarChart3 size={18} /> },
+  { id: 'notas',       label: 'Notas',       icon: <BookOpen size={18} /> },
+  { id: 'validacion',  label: 'Validación',  icon: <ClipboardCheck size={18} /> },
 ];
 
 interface TabNavProps {

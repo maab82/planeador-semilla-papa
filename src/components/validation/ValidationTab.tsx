@@ -84,6 +84,91 @@ function fmtInt(n: number) {
   return n.toLocaleString('es-MX', { maximumFractionDigits: 0 });
 }
 
+// ─── Caso de prueba con valores conocidos ────────────────────────────────────
+// Valores fijos para verificar que el motor produce resultados correctos.
+// Referencia manual: (2109+468) × 52 ÷ 4633 = 28.9239 ha
+
+const CASO_REF = {
+  terceraArpillas: 2109,
+  cuartaArpillas: 468,
+  kgPorArpilla: 52,
+  kgPorHa: 4633,
+};
+
+function CasoPrueba() {
+  const totalArpillas = CASO_REF.terceraArpillas + CASO_REF.cuartaArpillas;
+  const kgTercera     = CASO_REF.terceraArpillas * CASO_REF.kgPorArpilla;
+  const kgCuarta      = CASO_REF.cuartaArpillas  * CASO_REF.kgPorArpilla;
+  const totalKg       = totalArpillas * CASO_REF.kgPorArpilla;
+  const hectareas     = totalKg / CASO_REF.kgPorHa;
+  const ESPERADO      = 28.9239;
+  const ok            = Math.abs(hectareas - ESPERADO) < 0.0001;
+
+  return (
+    <div className={`rounded-xl border-2 p-4 ${ok ? 'border-green-400 bg-green-50' : 'border-red-400 bg-red-50'}`}>
+      <div className="flex items-center gap-2 mb-3">
+        {ok
+          ? <CheckCircle size={16} className="text-green-600" />
+          : <AlertTriangle size={16} className="text-red-600" />}
+        <h3 className={`text-sm font-bold ${ok ? 'text-green-800' : 'text-red-800'}`}>
+          Caso de Prueba de Referencia — {ok ? 'PASA ✓' : 'FALLA ✗'}
+        </h3>
+      </div>
+      <p className="text-xs text-gray-600 mb-3">
+        Valores fijos conocidos para verificar que el motor de cálculo produce resultados correctos.
+      </p>
+      <div className="font-mono text-sm space-y-1 bg-white rounded-lg p-3 border border-gray-200">
+        <div className="flex justify-between text-xs">
+          <span className="text-gray-500">Arpillas tercera</span>
+          <span className="font-bold">{CASO_REF.terceraArpillas.toLocaleString('es-MX')}</span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="text-gray-500">Arpillas cuarta</span>
+          <span className="font-bold">{CASO_REF.cuartaArpillas.toLocaleString('es-MX')}</span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="text-gray-500">Total arpillas</span>
+          <span className="font-bold">{totalArpillas.toLocaleString('es-MX')}</span>
+        </div>
+        <div className="border-t border-dashed border-gray-200 my-1" />
+        <div className="flex justify-between text-xs">
+          <span className="text-gray-500">Kg tercera ({CASO_REF.terceraArpillas} × {CASO_REF.kgPorArpilla})</span>
+          <span className="font-bold">{kgTercera.toLocaleString('es-MX')} kg</span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="text-gray-500">Kg cuarta ({CASO_REF.cuartaArpillas} × {CASO_REF.kgPorArpilla})</span>
+          <span className="font-bold">{kgCuarta.toLocaleString('es-MX')} kg</span>
+        </div>
+        <div className="flex justify-between text-xs font-semibold">
+          <span className="text-gray-600">Total kg ({totalArpillas} × {CASO_REF.kgPorArpilla})</span>
+          <span>{totalKg.toLocaleString('es-MX')} kg</span>
+        </div>
+        <div className="border-t border-dashed border-gray-200 my-1" />
+        <div className="flex justify-between text-xs">
+          <span className="text-gray-500">Consumo histórico</span>
+          <span className="font-bold">{CASO_REF.kgPorHa.toLocaleString('es-MX')} kg/ha</span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="text-gray-500">Fórmula</span>
+          <span className="text-gray-600">{totalKg.toLocaleString('es-MX')} ÷ {CASO_REF.kgPorHa.toLocaleString('es-MX')}</span>
+        </div>
+        <div className={`flex justify-between text-sm font-black mt-1 pt-1 border-t border-gray-200 ${ok ? 'text-green-700' : 'text-red-700'}`}>
+          <span>Resultado calculado</span>
+          <span>{hectareas.toFixed(4)} ha</span>
+        </div>
+        <div className="flex justify-between text-xs text-gray-500">
+          <span>Resultado esperado</span>
+          <span>{ESPERADO.toFixed(4)} ha</span>
+        </div>
+        <div className="flex justify-between text-xs text-gray-500">
+          <span>Diferencia</span>
+          <span>{Math.abs(hectareas - ESPERADO).toExponential(2)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Componente principal ────────────────────────────────────────────────────
 
 export function ValidationTab() {
@@ -140,6 +225,9 @@ export function ValidationTab() {
           Ningún parámetro cruza entre métodos.
         </p>
       </div>
+
+      {/* ── CASO DE PRUEBA DE REFERENCIA ── */}
+      <CasoPrueba />
 
       {/* ── 1. INVENTARIO (compartido) ── */}
       <Section title="1 · Inventario (compartido por ambos métodos)">

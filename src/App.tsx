@@ -6,6 +6,7 @@ import { InventoryTab } from './components/tabs/InventoryTab';
 import { SamplingTab } from './components/tabs/SamplingTab';
 import { PlanningTab } from './components/tabs/PlanningTab';
 import { ResultsTab } from './components/tabs/ResultsTab';
+import { NotasTab } from './components/notas/NotasTab';
 import { ValidationTab } from './components/validation/ValidationTab';
 
 function AppContent() {
@@ -20,6 +21,7 @@ function AppContent() {
         {activeTab === 'muestreos' && <SamplingTab />}
         {activeTab === 'planeacion' && <PlanningTab />}
         {activeTab === 'resultados' && <ResultsTab />}
+        {activeTab === 'notas'      && <NotasTab />}
         {activeTab === 'validacion' && <ValidationTab />}
       </main>
       <footer className="bg-white border-t border-gray-200 py-3 text-center text-xs text-gray-400">
