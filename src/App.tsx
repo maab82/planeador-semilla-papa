@@ -6,6 +6,7 @@ import { InventoryTab } from './components/tabs/InventoryTab';
 import { SamplingTab } from './components/tabs/SamplingTab';
 import { PlanningTab } from './components/tabs/PlanningTab';
 import { ResultsTab } from './components/tabs/ResultsTab';
+import { ValidationTab } from './components/validation/ValidationTab';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState<TabId>('inventario');
@@ -19,6 +20,7 @@ function AppContent() {
         {activeTab === 'muestreos' && <SamplingTab />}
         {activeTab === 'planeacion' && <PlanningTab />}
         {activeTab === 'resultados' && <ResultsTab />}
+        {activeTab === 'validacion' && <ValidationTab />}
       </main>
       <footer className="bg-white border-t border-gray-200 py-3 text-center text-xs text-gray-400">
         Planeador de Semilla de Papa — Datos almacenados localmente en su navegador

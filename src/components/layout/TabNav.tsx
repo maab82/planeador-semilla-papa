@@ -1,6 +1,6 @@
-import { Package, FlaskConical, Target, BarChart3 } from 'lucide-react';
+import { Package, FlaskConical, Target, BarChart3, ClipboardCheck } from 'lucide-react';
 
-export type TabId = 'inventario' | 'muestreos' | 'planeacion' | 'resultados';
+export type TabId = 'inventario' | 'muestreos' | 'planeacion' | 'resultados' | 'validacion';
 
 interface Tab {
   id: TabId;
@@ -13,6 +13,7 @@ const tabs: Tab[] = [
   { id: 'muestreos', label: 'Muestreos', icon: <FlaskConical size={18} /> },
   { id: 'planeacion', label: 'Planeación', icon: <Target size={18} /> },
   { id: 'resultados', label: 'Resultados', icon: <BarChart3 size={18} /> },
+  { id: 'validacion', label: 'Validación', icon: <ClipboardCheck size={18} /> },
 ];
 
 interface TabNavProps {
@@ -24,12 +25,12 @@ export function TabNav({ activeTab, onTabChange }: TabNavProps) {
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex gap-0">
+        <div className="flex gap-0 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3.5 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-3.5 text-sm font-medium border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'border-green-700 text-green-800 bg-green-50'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
