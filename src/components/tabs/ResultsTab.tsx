@@ -1,16 +1,19 @@
 import { AlertTriangle } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { calcularResultados } from '../../utils/calculations';
+import { calcularResultados, calcularMuestreosTercera, calcularMuestreosCuarta } from '../../utils/calculations';
 import { AvailableSeedCard } from '../results/AvailableSeedCard';
 import { EstimatedPopulationCard } from '../results/EstimatedPopulationCard';
 import { HistoricoCard } from '../results/HistoricoCard';
 import { PoblacionalCard } from '../results/PoblacionalCard';
 import { MethodDifferenceCard } from '../results/MethodDifferenceCard';
 import { PlantingComparisonChart } from '../charts/PlantingComparisonChart';
+import { ProyeccionPostCriba } from '../results/ProyeccionPostCriba';
 
 export function ResultsTab() {
   const { inventory, sampling, planning } = useApp();
   const results = calcularResultados(inventory, sampling, planning);
+  const resTercera = calcularMuestreosTercera(sampling, inventory.weightPerBag);
+  const resCuarta = calcularMuestreosCuarta(sampling, inventory.weightPerBag);
 
   if (results.arpillasTotales === 0) {
     return (
@@ -76,6 +79,14 @@ export function ResultsTab() {
 
       {/* Diferencia entre métodos */}
       <MethodDifferenceCard historico={historico} poblacional={poblacional} />
+
+      {/* Proyección Post-Criba */}
+      <ProyeccionPostCriba
+        arpillasTercera={results.arpillasTercera}
+        arpillasCuarta={results.arpillasCuarta}
+        resTercera={resTercera}
+        resCuarta={resCuarta}
+      />
 
       {/* Gráfica */}
       <PlantingComparisonChart results={results} />

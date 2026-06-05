@@ -80,8 +80,10 @@ export function CalculationMethodSelector() {
             unit="kg/ha"
             value={planning.kgHaPersonalizado}
             onChange={(e) => {
-              const num = Math.max(1, parseFloat(e.target.value) || 4633);
-              setPlanning((prev) => ({ ...prev, kgHaPersonalizado: num }));
+              const parsed = parseFloat(e.target.value);
+              if (!isNaN(parsed) && parsed >= 1) {
+                setPlanning((prev) => ({ ...prev, kgHaPersonalizado: parsed }));
+              }
             }}
           />
         </div>
