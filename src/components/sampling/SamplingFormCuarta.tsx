@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, FlaskConical, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, FlaskConical, MapPin, Leaf, Package, Calendar } from 'lucide-react';
 import { Card } from '../common/Card';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
@@ -23,11 +23,75 @@ const emptyForm = (): Omit<SampleCuarta, 'id'> => ({
   fecha: '',
 });
 
+function formatFecha(fecha?: string) {
+  if (!fecha) return null;
+  const [y, m, d] = fecha.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function SampleCard({ s, index, onDelete }: {
+  s: SampleCuarta;
+  index: number;
+  onDelete: (id: string) => void;
+}) {
+  const quinta = s.unidadesQuinta ?? 0;
+  const total = s.unidadesTercera + s.unidadesCuarta + s.unidadesCuartaChica + quinta + s.unidadesMerma;
+  const pctMerma = total > 0 ? ((s.unidadesMerma / total) * 100).toFixed(0) : '0';
+  const pctUtil = total > 0 ? (((s.unidadesTercera + s.unidadesCuarta + s.unidadesCuartaChica) / total) * 100).toFixed(0) : '0';
+
+  return (
+    <div className="border border-gray-200 rounded-xl p-3 bg-white hover:border-blue-300 transition-colors">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="min-w-0">
+          <p className="font-semibold text-gray-900 text-sm truncate uppercase">
+            {s.lote || `Muestra #${index + 1}`}
+          </p>
+          <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-0.5">
+            {s.variedad && <span className="text-xs text-gray-500 capitalize">{s.variedad}</span>}
+            {s.origen && <span className="text-xs text-gray-500 capitalize">{s.origen === 'navojoa' ? 'Navojoa' : 'Caborca'}</span>}
+            {s.fecha && <span className="text-xs text-gray-400">{formatFecha(s.fecha)}</span>}
+            {!s.variedad && !s.origen && !s.fecha && (
+              <span className="text-xs text-gray-400">Sin identificación</span>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={() => onDelete(s.id)}
+          className="text-red-300 hover:text-red-500 transition-colors shrink-0 cursor-pointer mt-0.5"
+        >
+          <Trash2 size={14} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-6 gap-1 text-center">
+        {[
+          { label: '3ra', value: s.unidadesTercera, color: 'text-green-700' },
+          { label: '4ta', value: s.unidadesCuarta, color: 'text-blue-700' },
+          { label: '4ta Ch', value: s.unidadesCuartaChica, color: 'text-blue-500' },
+          { label: 'Quinta', value: quinta, color: 'text-violet-500' },
+          { label: 'Merma', value: s.unidadesMerma, color: 'text-red-500' },
+          { label: 'Total', value: total, color: 'text-gray-800 font-semibold' },
+        ].map(({ label, value, color }) => (
+          <div key={label} className="bg-gray-50 rounded-lg py-1 px-0.5">
+            <p className={`text-sm font-medium ${color}`}>{value}</p>
+            <p className="text-xs text-gray-400 leading-tight">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+        <span>{s.pesoMuestra} kg</span>
+        <span className="text-emerald-600 font-medium">Útil {pctUtil}%</span>
+        <span className="text-red-500">Merma {pctMerma}%</span>
+      </div>
+    </div>
+  );
+}
+
 export function SamplingFormCuarta() {
   const { sampling, setSampling } = useApp();
   const [form, setForm] = useState(emptyForm());
   const [adding, setAdding] = useState(false);
-  const [showMeta, setShowMeta] = useState(false);
 
   function handleAdd() {
     if (form.pesoMuestra <= 0) return;
@@ -47,18 +111,17 @@ export function SamplingFormCuarta() {
     setSampling((prev) => ({ ...prev, muestreosCuarta: [...prev.muestreosCuarta, newSample] }));
     setForm(emptyForm());
     setAdding(false);
-    setShowMeta(false);
   }
 
   function handleDelete(id: string) {
     setSampling((prev) => ({ ...prev, muestreosCuarta: prev.muestreosCuarta.filter((s) => s.id !== id) }));
   }
 
-  function handleNumChange(field: keyof typeof form, value: string) {
+  function handleNum(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: parseFloat(value) || 0 }));
   }
 
-  function handleTextChange(field: keyof typeof form, value: string) {
+  function handleText(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
@@ -81,78 +144,30 @@ export function SamplingFormCuarta() {
       </div>
 
       {adding && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
-          <p className="text-sm font-medium text-blue-800 mb-3">Nueva Muestra — Cuarta</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <Input
-              label="Peso Muestra"
-              type="number"
-              min={0}
-              step={0.1}
-              unit="kg"
-              value={form.pesoMuestra || ''}
-              placeholder="0"
-              onChange={(e) => handleNumChange('pesoMuestra', e.target.value)}
-            />
-            <Input
-              label="Unidades Tercera"
-              type="number"
-              min={0}
-              value={form.unidadesTercera || ''}
-              placeholder="0"
-              onChange={(e) => handleNumChange('unidadesTercera', e.target.value)}
-            />
-            <Input
-              label="Unidades Cuarta"
-              type="number"
-              min={0}
-              value={form.unidadesCuarta || ''}
-              placeholder="0"
-              onChange={(e) => handleNumChange('unidadesCuarta', e.target.value)}
-            />
-            <Input
-              label="Unidades Cuarta Chica"
-              type="number"
-              min={0}
-              value={form.unidadesCuartaChica || ''}
-              placeholder="0"
-              onChange={(e) => handleNumChange('unidadesCuartaChica', e.target.value)}
-            />
-            <Input
-              label="Unidades Quinta"
-              type="number"
-              min={0}
-              value={form.unidadesQuinta || ''}
-              placeholder="0"
-              onChange={(e) => handleNumChange('unidadesQuinta', e.target.value)}
-            />
-            <Input
-              label="Unidades Merma"
-              type="number"
-              min={0}
-              value={form.unidadesMerma || ''}
-              placeholder="0"
-              onChange={(e) => handleNumChange('unidadesMerma', e.target.value)}
-            />
-          </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 space-y-4">
+          <p className="text-sm font-semibold text-blue-800">Nueva Muestra — Cuarta</p>
 
-          <button
-            type="button"
-            className="flex items-center gap-1 text-xs text-blue-700 mt-3 mb-1 hover:text-blue-900 transition-colors"
-            onClick={() => setShowMeta(!showMeta)}
-          >
-            {showMeta ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-            Datos adicionales (opcional)
-          </button>
-
-          {showMeta && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2 pt-3 border-t border-blue-200">
+          {/* Identificación del lote */}
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
+              <Package size={11} /> Identificación
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <Input
+                label="Lote / Viaje"
+                type="text"
+                value={form.lote ?? ''}
+                placeholder="Thermo 478"
+                onChange={(e) => handleText('lote', e.target.value)}
+              />
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-600">Origen</label>
+                <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                  <MapPin size={10} /> Origen
+                </label>
                 <select
                   className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                   value={form.origen ?? ''}
-                  onChange={(e) => handleTextChange('origen', e.target.value as OrigenMuestra | '')}
+                  onChange={(e) => handleText('origen', e.target.value as OrigenMuestra | '')}
                 >
                   <option value="">— Sin especificar</option>
                   <option value="navojoa">Navojoa</option>
@@ -160,11 +175,13 @@ export function SamplingFormCuarta() {
                 </select>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-600">Variedad</label>
+                <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                  <Leaf size={10} /> Variedad
+                </label>
                 <select
                   className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                   value={form.variedad ?? ''}
-                  onChange={(e) => handleTextChange('variedad', e.target.value as VariedadMuestra | '')}
+                  onChange={(e) => handleText('variedad', e.target.value as VariedadMuestra | '')}
                 >
                   <option value="">— Sin especificar</option>
                   <option value="fianna">Fianna</option>
@@ -172,82 +189,47 @@ export function SamplingFormCuarta() {
                   <option value="otra">Otra</option>
                 </select>
               </div>
-              <Input
-                label="Lote"
-                type="text"
-                value={form.lote ?? ''}
-                placeholder="Ej: L-01"
-                onChange={(e) => handleTextChange('lote', e.target.value)}
-              />
-              <Input
-                label="Fecha"
-                type="date"
-                value={form.fecha ?? ''}
-                onChange={(e) => handleTextChange('fecha', e.target.value)}
-              />
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                  <Calendar size={10} /> Fecha
+                </label>
+                <input
+                  type="date"
+                  className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={form.fecha ?? ''}
+                  onChange={(e) => handleText('fecha', e.target.value)}
+                />
+              </div>
             </div>
-          )}
+          </div>
 
-          <div className="flex gap-2 mt-3">
-            <Button onClick={handleAdd} disabled={form.pesoMuestra <= 0}>
-              Guardar Muestra
-            </Button>
-            <Button variant="secondary" onClick={() => { setAdding(false); setForm(emptyForm()); setShowMeta(false); }}>
-              Cancelar
-            </Button>
+          {/* Conteo de calibres */}
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
+              <FlaskConical size={11} /> Conteo de calibres
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <Input label="Peso Muestra" type="number" min={0} step={0.1} unit="kg" value={form.pesoMuestra || ''} placeholder="0" onChange={(e) => handleNum('pesoMuestra', e.target.value)} />
+              <Input label="Unidades Tercera" type="number" min={0} value={form.unidadesTercera || ''} placeholder="0" onChange={(e) => handleNum('unidadesTercera', e.target.value)} />
+              <Input label="Unidades Cuarta" type="number" min={0} value={form.unidadesCuarta || ''} placeholder="0" onChange={(e) => handleNum('unidadesCuarta', e.target.value)} />
+              <Input label="Unidades Cuarta Chica" type="number" min={0} value={form.unidadesCuartaChica || ''} placeholder="0" onChange={(e) => handleNum('unidadesCuartaChica', e.target.value)} />
+              <Input label="Unidades Quinta" type="number" min={0} value={form.unidadesQuinta || ''} placeholder="0" onChange={(e) => handleNum('unidadesQuinta', e.target.value)} />
+              <Input label="Unidades Merma" type="number" min={0} value={form.unidadesMerma || ''} placeholder="0" onChange={(e) => handleNum('unidadesMerma', e.target.value)} />
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Button onClick={handleAdd} disabled={form.pesoMuestra <= 0}>Guardar Muestra</Button>
+            <Button variant="secondary" onClick={() => { setAdding(false); setForm(emptyForm()); }}>Cancelar</Button>
           </div>
         </div>
       )}
 
       {sampling.muestreosCuarta.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
-                <th className="text-left px-3 py-2">#</th>
-                <th className="text-left px-3 py-2">Origen</th>
-                <th className="text-left px-3 py-2">Variedad</th>
-                <th className="text-left px-3 py-2">Lote</th>
-                <th className="text-right px-3 py-2">Peso (kg)</th>
-                <th className="text-right px-3 py-2">3ra</th>
-                <th className="text-right px-3 py-2">4ta</th>
-                <th className="text-right px-3 py-2">4ta Chica</th>
-                <th className="text-right px-3 py-2">Quinta</th>
-                <th className="text-right px-3 py-2">Merma</th>
-                <th className="text-right px-3 py-2">Total</th>
-                <th className="px-3 py-2"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {sampling.muestreosCuarta.map((s, i) => {
-                const quinta = s.unidadesQuinta ?? 0;
-                const total = s.unidadesTercera + s.unidadesCuarta + s.unidadesCuartaChica + quinta + s.unidadesMerma;
-                return (
-                  <tr key={s.id} className="hover:bg-gray-50">
-                    <td className="px-3 py-2 text-gray-500">{i + 1}</td>
-                    <td className="px-3 py-2 text-gray-600 capitalize">{s.origen ?? '—'}</td>
-                    <td className="px-3 py-2 text-gray-600 capitalize">{s.variedad ?? '—'}</td>
-                    <td className="px-3 py-2 text-gray-600">{s.lote || '—'}</td>
-                    <td className="px-3 py-2 text-right font-medium">{s.pesoMuestra}</td>
-                    <td className="px-3 py-2 text-right">{s.unidadesTercera}</td>
-                    <td className="px-3 py-2 text-right">{s.unidadesCuarta}</td>
-                    <td className="px-3 py-2 text-right">{s.unidadesCuartaChica}</td>
-                    <td className="px-3 py-2 text-right">{quinta}</td>
-                    <td className="px-3 py-2 text-right">{s.unidadesMerma}</td>
-                    <td className="px-3 py-2 text-right font-semibold text-blue-700">{total}</td>
-                    <td className="px-3 py-2 text-right">
-                      <button
-                        onClick={() => handleDelete(s.id)}
-                        className="text-red-400 hover:text-red-600 transition-colors cursor-pointer"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {sampling.muestreosCuarta.map((s, i) => (
+            <SampleCard key={s.id} s={s} index={i} onDelete={handleDelete} />
+          ))}
         </div>
       )}
 
