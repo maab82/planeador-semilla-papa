@@ -1,12 +1,18 @@
-import { Sprout, Download, Upload } from 'lucide-react';
+import { Sprout, Download, Upload, RotateCcw } from 'lucide-react';
 import { Button } from '../common/Button';
 import { exportarDatos, importarDatos } from '../../utils/exportImport';
 import { useApp } from '../../context/AppContext';
 import { useRef } from 'react';
 
 export function Header() {
-  const { inventory, sampling, planning, notas, setInventory, setSampling, setPlanning, setNotas } = useApp();
+  const { inventory, sampling, planning, notas, setInventory, setSampling, setPlanning, setNotas, resetAll } = useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleReset() {
+    if (window.confirm('¿Limpiar todos los datos y comenzar una temporada desde cero?\n\nEsta acción no se puede deshacer. Se recomienda exportar primero.')) {
+      resetAll();
+    }
+  }
 
   function handleExport() {
     exportarDatos(inventory, sampling, planning, notas);
@@ -42,6 +48,16 @@ export function Header() {
         </div>
         <div className="flex items-center gap-2">
           <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-white hover:bg-green-700 border border-green-600"
+            onClick={handleReset}
+            title="Nueva temporada — limpiar todos los datos"
+          >
+            <RotateCcw size={15} />
+            <span className="hidden sm:inline">Nueva temporada</span>
+          </Button>
           <Button
             variant="ghost"
             size="sm"

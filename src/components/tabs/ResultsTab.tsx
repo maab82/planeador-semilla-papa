@@ -73,7 +73,7 @@ export function ResultsTab() {
 
       {/* Dos métodos lado a lado */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <HistoricoCard historico={historico} hectareasObjetivo={hectareasObjetivo} />
+        <HistoricoCard historico={historico} hectareasObjetivo={hectareasObjetivo} totalKg={results.kgTotales} />
         <PoblacionalCard poblacional={poblacional} hectareasObjetivo={hectareasObjetivo} />
       </div>
 
