@@ -96,6 +96,18 @@ export function CalculationMethodSelector() {
             onChange={(e) => setInputValue(e.target.value)}
             onBlur={handleBlur}
           />
+          {planning.kgHaPersonalizado < 1000 && (
+            <p className="mt-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
+              ⚠ Valor muy bajo. El rango operacional típico es 1000–10 000 kg/ha.
+              Resultados pueden ser poco realistas.
+            </p>
+          )}
+          {planning.kgHaPersonalizado > 10000 && (
+            <p className="mt-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
+              ⚠ Valor muy alto. El rango operacional típico es 1000–10 000 kg/ha.
+              Resultados pueden ser poco realistas.
+            </p>
+          )}
         </div>
       )}
     </Card>

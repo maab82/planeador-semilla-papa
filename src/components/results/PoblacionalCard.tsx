@@ -64,6 +64,47 @@ export function PoblacionalCard({ poblacional, hectareasObjetivo }: Props) {
         </div>
       </div>
 
+      {/* Diagnóstico para validación en campo */}
+      <details className="mt-1 mb-3">
+        <summary className="text-xs text-blue-600 cursor-pointer select-none hover:text-blue-800 font-medium">
+          Ver diagnóstico detallado
+        </summary>
+        <div className="mt-2 bg-blue-50 border border-blue-100 rounded-lg p-3 space-y-1.5 text-xs text-gray-600">
+          <div className="flex justify-between">
+            <span>Tubérculos/arpilla tercera</span>
+            <span className="font-mono font-semibold">{poblacional.tuberculosPorArpillaTercera.toFixed(1)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Tubérculos/arpilla cuarta</span>
+            <span className="font-mono font-semibold">{poblacional.tuberculosPorArpillaCuarta.toFixed(1)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Tubérculos de tercera</span>
+            <span className="font-mono font-semibold">{poblacional.tuberculosTercera.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Tubérculos de cuarta</span>
+            <span className="font-mono font-semibold">{poblacional.tuberculosCuarta.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between border-t border-blue-200 pt-1.5 font-semibold text-gray-700">
+            <span>Total tubérculos</span>
+            <span className="font-mono">{poblacional.totalTuberculos.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Metros lineales posibles</span>
+            <span className="font-mono font-semibold">{poblacional.metrosLinealesPosibles.toLocaleString('es-MX', { maximumFractionDigits: 0 })}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Metros lineales/ha ({poblacional.distanciaSurcos} cm)</span>
+            <span className="font-mono font-semibold">{poblacional.metrosPorHa.toLocaleString('es-MX', { maximumFractionDigits: 0 })}</span>
+          </div>
+          <div className="mt-2 bg-white border border-blue-200 rounded p-2 font-mono text-[10px] text-gray-500 leading-relaxed">
+            ha = {poblacional.totalTuberculos.toLocaleString()} tub ÷ {poblacional.tuberculosPorHa.toLocaleString('es-MX', { maximumFractionDigits: 0 })} tub/ha
+            {' = '}<strong className="text-blue-700">{poblacional.hectareas.toFixed(4)} ha</strong>
+          </div>
+        </div>
+      </details>
+
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs text-gray-500">Meta</p>

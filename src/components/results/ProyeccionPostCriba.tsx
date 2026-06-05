@@ -106,8 +106,8 @@ export function ProyeccionPostCriba({
   const total_merma       = t_merma   + c_merma;
 
   const totalOriginal  = arpillasTercera + arpillasCuarta;
-  const totalSemilla   = total_tercera + total_cuarta + total_cuartaChica; // usable as seed
-  const totalNoSemilla = total_segunda + total_merma;                      // not usable
+  // Segunda, tercera, cuarta y cuarta chica = semilla aprovechable. Solo merma = descarte.
+  const totalSemilla = total_segunda + total_tercera + total_cuarta + total_cuartaChica;
 
   // ── Comparación original vs proyectado ───────────────────────────────────
   // "original" breakdown: todo lo recibido se clasifica igual que su calibre
@@ -272,7 +272,7 @@ export function ProyeccionPostCriba({
           <TrendingDown size={16} className="text-purple-600" />
           <p className="text-sm font-semibold text-purple-800">Resumen de Conversión</p>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
           <div className="bg-white border border-purple-100 rounded-lg p-3 text-center">
             <p className="text-xs text-gray-500 mb-0.5">Inventario recibido</p>
             <p className="text-xl font-black text-gray-800">{totalOriginal.toLocaleString()}</p>
@@ -285,30 +285,47 @@ export function ProyeccionPostCriba({
               {totalOriginal > 0 ? ((totalSemilla / totalOriginal) * 100).toFixed(1) : 0}% del total
             </p>
           </div>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
-            <p className="text-xs text-yellow-700 mb-0.5">Segunda (no semilla)</p>
-            <p className="text-xl font-black text-yellow-800">{total_segunda.toFixed(0)}</p>
-            <p className="text-xs text-yellow-500">
-              {totalOriginal > 0 ? ((total_segunda / totalOriginal) * 100).toFixed(1) : 0}% del total
-            </p>
-          </div>
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-            <p className="text-xs text-red-700 mb-0.5">Merma total</p>
+            <p className="text-xs text-red-700 mb-0.5">Merma (descarte)</p>
             <p className="text-xl font-black text-red-800">{total_merma.toFixed(0)}</p>
             <p className="text-xs text-red-500">
               {totalOriginal > 0 ? ((total_merma / totalOriginal) * 100).toFixed(1) : 0}% del total
             </p>
           </div>
         </div>
-        {total_segunda > 0 && totalOriginal > 0 && (total_segunda / totalOriginal) * 100 > 15 && (
-          <div className="mt-3 bg-yellow-100 border border-yellow-300 rounded-lg px-3 py-2 text-xs text-yellow-800">
-            ⚠ Alta proporción de segunda ({((total_segunda / totalOriginal) * 100).toFixed(1)}%). Revisar calidad del lote de tercera recibido.
+
+        {/* Distribución de calibres post-criba — calidad */}
+        {totalSemilla > 0 && (
+          <div className="bg-white border border-purple-100 rounded-lg p-3 mb-3">
+            <p className="text-xs font-semibold text-gray-600 mb-2">Distribución de calibres post-criba (sobre semilla aprovechable)</p>
+            <div className="space-y-1.5">
+              {[
+                { label: 'Segunda',      val: total_segunda,     color: 'bg-yellow-400' },
+                { label: 'Tercera',      val: total_tercera,     color: 'bg-green-500'  },
+                { label: 'Cuarta',       val: total_cuarta,      color: 'bg-blue-400'   },
+                { label: 'Cuarta Chica', val: total_cuartaChica, color: 'bg-indigo-400' },
+              ].map((c) => {
+                const p = totalSemilla > 0 ? (c.val / totalSemilla) * 100 : 0;
+                return (
+                  <div key={c.label} className="grid grid-cols-[6rem_1fr_3.5rem] items-center gap-2">
+                    <span className="text-xs text-gray-600">{c.label}</span>
+                    <div className="bg-gray-100 rounded-full h-3 overflow-hidden">
+                      <div className={`h-3 rounded-full ${c.color}`} style={{ width: `${Math.min(p, 100)}%` }} />
+                    </div>
+                    <span className="text-right text-xs font-semibold text-gray-700">{p.toFixed(1)}%</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
-        {totalNoSemilla > 0 && totalOriginal > 0 && (
-          <p className="mt-2 text-xs text-gray-500 text-right">
-            Material no aprovechable como semilla: {totalNoSemilla.toFixed(0)} arpillas ({((totalNoSemilla / totalOriginal) * 100).toFixed(1)}%)
-          </p>
+
+        {/* Alerta de calidad del inventario */}
+        {total_segunda > 0 && totalSemilla > 0 && (total_segunda / totalSemilla) * 100 > 20 && (
+          <div className="bg-amber-100 border border-amber-300 rounded-lg px-3 py-2 text-xs text-amber-800">
+            ⚠ Alta proporción de segunda ({((total_segunda / totalSemilla) * 100).toFixed(1)}% de la semilla aprovechable).
+            Revisar calidad del lote de tercera recibido — posible mezcla o clasificación incorrecta en origen.
+          </div>
         )}
       </div>
     </Card>

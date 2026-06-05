@@ -1,4 +1,4 @@
-import { ArrowLeftRight } from 'lucide-react';
+import { ArrowLeftRight, AlertTriangle } from 'lucide-react';
 import { Card } from '../common/Card';
 import type { MetodoHistorico, MetodoPoblacional } from '../../types/results';
 
@@ -13,6 +13,9 @@ export function MethodDifferenceCard({ historico, poblacional }: Props) {
   const diff = historico.hectareas - poblacional.hectareas;
   const absDiff = Math.abs(diff);
   const mayor = diff >= 0 ? 'Histórico' : 'Poblacional';
+  const base = Math.max(historico.hectareas, poblacional.hectareas);
+  const pctDiff = base > 0 ? (absDiff / base) * 100 : 0;
+  const divergencia = pctDiff >= 20;
 
   return (
     <Card variant="yellow">
@@ -32,10 +35,10 @@ export function MethodDifferenceCard({ historico, poblacional }: Props) {
           <p className="text-xl font-bold text-green-700">{historico.hectareas.toFixed(1)}</p>
           <p className="text-xs text-gray-400">ha</p>
         </div>
-        <div className="bg-yellow-100 rounded-lg p-3 flex flex-col items-center justify-center">
-          <p className="text-xs text-yellow-700 font-semibold">Diferencia</p>
-          <p className="text-lg font-black text-yellow-800">{absDiff.toFixed(1)} ha</p>
-          <p className="text-xs text-yellow-600">más en {mayor}</p>
+        <div className={`rounded-lg p-3 flex flex-col items-center justify-center ${divergencia ? 'bg-red-100' : 'bg-yellow-100'}`}>
+          <p className={`text-xs font-semibold ${divergencia ? 'text-red-700' : 'text-yellow-700'}`}>Diferencia</p>
+          <p className={`text-lg font-black ${divergencia ? 'text-red-800' : 'text-yellow-800'}`}>{absDiff.toFixed(1)} ha</p>
+          <p className={`text-xs ${divergencia ? 'text-red-600' : 'text-yellow-600'}`}>{pctDiff.toFixed(1)}% · más en {mayor}</p>
         </div>
         <div className="bg-blue-100 rounded-lg p-3">
           <p className="text-xs text-gray-500 mb-1">Poblacional</p>
@@ -43,6 +46,17 @@ export function MethodDifferenceCard({ historico, poblacional }: Props) {
           <p className="text-xs text-gray-400">ha</p>
         </div>
       </div>
+
+      {divergencia && (
+        <div className="mt-3 flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">
+          <AlertTriangle size={15} className="text-red-600 shrink-0 mt-0.5" />
+          <p className="text-xs text-red-800">
+            <strong>Divergencia significativa ({pctDiff.toFixed(1)}%).</strong>{' '}
+            Los métodos presentan una diferencia significativa. Revisar kg/ha, tubérculos
+            por metro o calidad de clasificación observada en los muestreos.
+          </p>
+        </div>
+      )}
     </Card>
   );
 }
