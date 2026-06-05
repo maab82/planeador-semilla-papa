@@ -95,7 +95,6 @@ export function ResultsTab() {
         arpillasCuarta={results.arpillasCuarta}
         weightPerBag={inventory.weightPerBag}
         resTercera={resTercera}
-        resCuarta={resCuarta}
         kgPorHa={historico.kgPorHa}
         hectareasObjetivo={hectareasObjetivo}
       />
