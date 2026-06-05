@@ -1,4 +1,14 @@
-export interface SampleTercera {
+export type OrigenMuestra = 'navojoa' | 'caborca';
+export type VariedadMuestra = 'fianna' | 'orquesta' | 'otra';
+
+export interface SampleMeta {
+  origen?: OrigenMuestra;
+  variedad?: VariedadMuestra;
+  lote?: string;
+  fecha?: string;
+}
+
+export interface SampleTercera extends SampleMeta {
   id: string;
   pesoMuestra: number;
   unidadesSegunda: number;
@@ -7,7 +17,7 @@ export interface SampleTercera {
   unidadesMerma: number;
 }
 
-export interface SampleCuarta {
+export interface SampleCuarta extends SampleMeta {
   id: string;
   pesoMuestra: number;
   unidadesTercera: number;
