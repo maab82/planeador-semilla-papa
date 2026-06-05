@@ -231,15 +231,15 @@ export function ValidationTab() {
 
       {/* ── 1. INVENTARIO (compartido) ── */}
       <Section title="1 · Inventario (compartido por ambos métodos)">
-        <Step label="Arpillas tercera propias"   formula={`${fmtInt(inventory.own.terceraArpillas)} arp.`}      result="" />
-        <Step label="Arpillas tercera compradas" formula={`${fmtInt(inventory.purchased.terceraArpillas)} arp.`} result="" />
+        <Step label="Arpillas tercera Navojoa"  formula={`${fmtInt(inventory.own.terceraArpillas)} arp.`}      result="" />
+        <Step label="Arpillas tercera Caborca" formula={`${fmtInt(inventory.purchased.terceraArpillas)} arp.`} result="" />
         <Step
           label="Total arpillas tercera"
           formula={`${fmtInt(inventory.own.terceraArpillas)} + ${fmtInt(inventory.purchased.terceraArpillas)}`}
           result={`${fmtInt(inv.totalArpillasTercera)} arp.`}
         />
-        <Step label="Arpillas cuarta propias"   formula={`${fmtInt(inventory.own.cuartaArpillas)} arp.`}      result="" />
-        <Step label="Arpillas cuarta compradas" formula={`${fmtInt(inventory.purchased.cuartaArpillas)} arp.`} result="" />
+        <Step label="Arpillas cuarta Navojoa"  formula={`${fmtInt(inventory.own.cuartaArpillas)} arp.`}      result="" />
+        <Step label="Arpillas cuarta Caborca" formula={`${fmtInt(inventory.purchased.cuartaArpillas)} arp.`} result="" />
         <Step
           label="Total arpillas cuarta"
           formula={`${fmtInt(inventory.own.cuartaArpillas)} + ${fmtInt(inventory.purchased.cuartaArpillas)}`}

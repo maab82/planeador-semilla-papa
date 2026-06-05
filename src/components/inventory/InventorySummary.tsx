@@ -1,4 +1,4 @@
-import { Package, Weight, Truck } from 'lucide-react';
+import { Package, Weight, Truck, MapPin } from 'lucide-react';
 import { InventoryCard } from './InventoryCard';
 import { Card } from '../common/Card';
 import { Input } from '../common/Input';
@@ -55,8 +55,10 @@ export function InventorySummary() {
       </div>
 
       <Card>
-        <h3 className="font-semibold text-gray-800 mb-3">Desglose por Calibre</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        <h3 className="font-semibold text-gray-800 mb-3">Desglose por Calibre y Origen</h3>
+
+        {/* Totales por calibre */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center mb-4">
           <div className="bg-green-50 rounded-lg p-3">
             <p className="text-xs text-gray-500">Arpillas Tercera</p>
             <p className="text-xl font-bold text-green-700">{summary.totalArpillasTercera.toLocaleString()}</p>
@@ -72,6 +74,46 @@ export function InventorySummary() {
           <div className="bg-blue-50 rounded-lg p-3">
             <p className="text-xs text-gray-500">Kg Cuarta</p>
             <p className="text-xl font-bold text-blue-700">{summary.kgCuarta.toLocaleString('es-MX', { maximumFractionDigits: 0 })}</p>
+          </div>
+        </div>
+
+        {/* Desglose por origen */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="border border-green-100 rounded-lg p-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <MapPin size={13} className="text-green-600" />
+              <p className="text-xs font-semibold text-green-700">Navojoa</p>
+            </div>
+            <div className="flex justify-between text-xs text-gray-600">
+              <span>Tercera</span>
+              <span className="font-semibold">{inventory.own.terceraArpillas.toLocaleString()} arp</span>
+            </div>
+            <div className="flex justify-between text-xs text-gray-600 mt-1">
+              <span>Cuarta</span>
+              <span className="font-semibold">{inventory.own.cuartaArpillas.toLocaleString()} arp</span>
+            </div>
+            <div className="flex justify-between text-xs font-semibold text-green-700 mt-2 pt-2 border-t border-green-100">
+              <span>Total</span>
+              <span>{(inventory.own.terceraArpillas + inventory.own.cuartaArpillas).toLocaleString()} arp</span>
+            </div>
+          </div>
+          <div className="border border-blue-100 rounded-lg p-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <MapPin size={13} className="text-blue-600" />
+              <p className="text-xs font-semibold text-blue-700">Caborca</p>
+            </div>
+            <div className="flex justify-between text-xs text-gray-600">
+              <span>Tercera</span>
+              <span className="font-semibold">{inventory.purchased.terceraArpillas.toLocaleString()} arp</span>
+            </div>
+            <div className="flex justify-between text-xs text-gray-600 mt-1">
+              <span>Cuarta</span>
+              <span className="font-semibold">{inventory.purchased.cuartaArpillas.toLocaleString()} arp</span>
+            </div>
+            <div className="flex justify-between text-xs font-semibold text-blue-700 mt-2 pt-2 border-t border-blue-100">
+              <span>Total</span>
+              <span>{(inventory.purchased.terceraArpillas + inventory.purchased.cuartaArpillas).toLocaleString()} arp</span>
+            </div>
           </div>
         </div>
       </Card>
