@@ -19,7 +19,6 @@ export function OwnInventoryForm() {
         </div>
         <div>
           <h3 className="font-semibold text-gray-800">Navojoa</h3>
-          <p className="text-xs text-gray-500">Semilla propia</p>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
