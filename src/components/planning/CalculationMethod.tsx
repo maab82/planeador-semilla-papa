@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Calculator } from 'lucide-react';
 import { Card } from '../common/Card';
 import { Input } from '../common/Input';
@@ -45,9 +46,22 @@ const methodDescriptions: Record<CalcMethod, string> = {
 
 export function CalculationMethodSelector() {
   const { planning, setPlanning } = useApp();
+  const [inputValue, setInputValue] = useState(String(planning.kgHaPersonalizado));
+
+  // Sync local string when external state changes (e.g. import)
+  useEffect(() => {
+    setInputValue(String(planning.kgHaPersonalizado));
+  }, [planning.kgHaPersonalizado]);
 
   function setMethod(method: CalcMethod) {
     setPlanning((prev) => ({ ...prev, metodoCalculo: method }));
+  }
+
+  function handleBlur() {
+    const parsed = parseFloat(inputValue);
+    const valid = !isNaN(parsed) && parsed >= 1 ? parsed : planning.kgHaPersonalizado;
+    setInputValue(String(valid));
+    setPlanning((prev) => ({ ...prev, kgHaPersonalizado: valid }));
   }
 
   return (
@@ -78,13 +92,9 @@ export function CalculationMethodSelector() {
             min={1000}
             max={10000}
             unit="kg/ha"
-            value={planning.kgHaPersonalizado}
-            onChange={(e) => {
-              const parsed = parseFloat(e.target.value);
-              if (!isNaN(parsed) && parsed >= 1) {
-                setPlanning((prev) => ({ ...prev, kgHaPersonalizado: parsed }));
-              }
-            }}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onBlur={handleBlur}
           />
         </div>
       )}
