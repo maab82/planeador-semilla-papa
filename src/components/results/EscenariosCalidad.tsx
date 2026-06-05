@@ -29,7 +29,7 @@ interface ResultadoEscenario {
   toneladas: number;
   hectareas: number;
   alcanzaMeta: boolean;
-  alertaSegunda: boolean;
+  alertaSegunda: 'alta' | 'muy_alta' | null;
 }
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -67,9 +67,11 @@ function calcularEscenario(
   const toneladas = (arpillasTotales * weightPerBag) / 1000;
   const hectareas = kgPorHa > 0 ? (arpillasTotales * weightPerBag) / kgPorHa : 0;
 
-  // Distribución combinada para cuarta (el lote cuarta no se afecta por el delta)
   // La advertencia se evalúa sobre el lote tercera que es el afectado
-  const alertaSegunda = dist.pctSegunda > 25;
+  const alertaSegunda: 'alta' | 'muy_alta' | null =
+    dist.pctSegunda > 35 ? 'muy_alta' :
+    dist.pctSegunda > 25 ? 'alta'     :
+    null;
 
   return {
     nombre,
@@ -126,6 +128,24 @@ function FilaCalibre({
   );
 }
 
+// ─── bloque informativo ───────────────────────────────────────────────────────
+
+function AlertPorQueImporta() {
+  return (
+    <details className="bg-white/70 border border-amber-200 rounded-lg text-[10px] text-gray-600">
+      <summary className="px-2.5 py-1.5 cursor-pointer select-none font-semibold text-amber-700 hover:text-amber-900">
+        ¿Por qué importa?
+      </summary>
+      <p className="px-2.5 pb-2.5 leading-relaxed">
+        Una mayor proporción de segunda puede modificar el número de tubérculos disponibles
+        por tonelada y afectar la población final lograda en campo, aun cuando las toneladas
+        disponibles sean las mismas. La segunda típicamente es un calibre mayor y contiene
+        menos unidades por kilogramo que tercera o cuarta.
+      </p>
+    </details>
+  );
+}
+
 // ─── tarjeta de escenario ─────────────────────────────────────────────────────
 
 const STYLE: Record<string, { card: string; badge: string; heading: string }> = {
@@ -161,7 +181,7 @@ function TarjetaEscenario({ r }: { r: ResultadoEscenario }) {
 
       {/* Distribución por línea */}
       <div className="space-y-1.5">
-        <FilaCalibre label="Segunda"   pct={r.dist.pctSegunda}     color="bg-yellow-400" resaltado={r.alertaSegunda} />
+        <FilaCalibre label="Segunda"   pct={r.dist.pctSegunda}     color="bg-yellow-400" resaltado={r.alertaSegunda !== null} />
         <FilaCalibre label="Tercera"   pct={r.dist.pctTercera}     color="bg-green-500"  />
         <FilaCalibre label="Cuarta"    pct={r.dist.pctCuarta}      color="bg-blue-400"   />
         <FilaCalibre label="Cuarta Ch" pct={r.dist.pctCuartaChica} color="bg-indigo-400" />
@@ -180,13 +200,31 @@ function TarjetaEscenario({ r }: { r: ResultadoEscenario }) {
         </div>
       </div>
 
-      {/* Advertencia de calidad */}
-      {r.alertaSegunda && (
-        <div className="flex items-start gap-1.5 bg-amber-100 border border-amber-300 rounded-lg px-2.5 py-2">
-          <AlertTriangle size={13} className="text-amber-600 shrink-0 mt-0.5" />
-          <p className="text-[10px] text-amber-800 leading-snug">
-            Alta proporción de segunda detectada. Revisar estrategia de siembra y densidad.
-          </p>
+      {/* Advertencia agronómica por nivel */}
+      {r.alertaSegunda === 'muy_alta' && (
+        <div className="space-y-1.5">
+          <div className="flex items-start gap-1.5 bg-red-100 border border-red-300 rounded-lg px-2.5 py-2">
+            <AlertTriangle size={13} className="text-red-600 shrink-0 mt-0.5" />
+            <p className="text-[10px] text-red-800 leading-snug">
+              <strong>La presencia de segunda es muy elevada ({r.dist.pctSegunda.toFixed(1)}%).</strong>{' '}
+              Considere realizar muestreos adicionales o validar la población esperada antes de definir
+              la superficie final de siembra.
+            </p>
+          </div>
+          <AlertPorQueImporta />
+        </div>
+      )}
+      {r.alertaSegunda === 'alta' && (
+        <div className="space-y-1.5">
+          <div className="flex items-start gap-1.5 bg-amber-100 border border-amber-300 rounded-lg px-2.5 py-2">
+            <AlertTriangle size={13} className="text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-[10px] text-amber-800 leading-snug">
+              <strong>Alta proporción de segunda detectada ({r.dist.pctSegunda.toFixed(1)}%).</strong>{' '}
+              Considere validar si la densidad objetivo (tubérculos por metro) sigue siendo
+              adecuada para esta composición de semilla.
+            </p>
+          </div>
+          <AlertPorQueImporta />
         </div>
       )}
     </div>
@@ -274,9 +312,9 @@ export function EscenariosCalidad({
                   <td className="px-3 py-2">
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${s.badge}`}>{r.nombre}</span>
                   </td>
-                  <td className={`px-3 py-2 text-right font-mono ${r.alertaSegunda ? 'text-amber-700 font-bold' : ''}`}>
+                  <td className={`px-3 py-2 text-right font-mono ${r.alertaSegunda === 'muy_alta' ? 'text-red-700 font-bold' : r.alertaSegunda === 'alta' ? 'text-amber-700 font-bold' : ''}`}>
                     {r.dist.pctSegunda.toFixed(1)}%
-                    {r.alertaSegunda && ' ⚠'}
+                    {r.alertaSegunda !== null && ' ⚠'}
                   </td>
                   <td className="px-3 py-2 text-right font-mono">{r.dist.pctTercera.toFixed(1)}%</td>
                   <td className="px-3 py-2 text-right font-mono">{r.dist.pctCuarta.toFixed(1)}%</td>
