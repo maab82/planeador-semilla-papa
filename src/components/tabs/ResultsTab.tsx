@@ -8,6 +8,7 @@ import { PoblacionalCard } from '../results/PoblacionalCard';
 import { MethodDifferenceCard } from '../results/MethodDifferenceCard';
 import { PlantingComparisonChart } from '../charts/PlantingComparisonChart';
 import { ProyeccionPostCriba } from '../results/ProyeccionPostCriba';
+import { EscenariosCalidad } from '../results/EscenariosCalidad';
 
 export function ResultsTab() {
   const { inventory, sampling, planning } = useApp();
@@ -86,6 +87,17 @@ export function ResultsTab() {
         arpillasCuarta={results.arpillasCuarta}
         resTercera={resTercera}
         resCuarta={resCuarta}
+      />
+
+      {/* Escenarios de calidad */}
+      <EscenariosCalidad
+        arpillasTercera={results.arpillasTercera}
+        arpillasCuarta={results.arpillasCuarta}
+        weightPerBag={inventory.weightPerBag}
+        resTercera={resTercera}
+        resCuarta={resCuarta}
+        kgPorHa={historico.kgPorHa}
+        hectareasObjetivo={hectareasObjetivo}
       />
 
       {/* Gráfica */}
