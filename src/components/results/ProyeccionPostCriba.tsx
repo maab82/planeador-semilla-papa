@@ -96,6 +96,7 @@ export function ProyeccionPostCriba({
   const c_tercera     = hasCuarta  ? pct(arpillasCuarta,  resCuarta.pctTercera)      : 0;
   const c_cuarta      = hasCuarta  ? pct(arpillasCuarta,  resCuarta.pctCuarta)       : 0;
   const c_cuartaChica = hasCuarta  ? pct(arpillasCuarta,  resCuarta.pctCuartaChica)  : 0;
+  const c_quinta      = hasCuarta  ? pct(arpillasCuarta,  resCuarta.pctQuinta)       : 0;
   const c_merma       = hasCuarta  ? pct(arpillasCuarta,  resCuarta.pctMerma)        : 0;
 
   // ── Totales consolidados post-criba ──────────────────────────────────────
@@ -103,11 +104,12 @@ export function ProyeccionPostCriba({
   const total_tercera     = t_tercera + c_tercera;
   const total_cuarta      = t_cuarta  + c_cuarta;
   const total_cuartaChica = c_cuartaChica;
+  const total_quinta      = c_quinta;
   const total_merma       = t_merma   + c_merma;
 
   const totalOriginal  = arpillasTercera + arpillasCuarta;
-  // Segunda, tercera, cuarta y cuarta chica = semilla aprovechable. Solo merma = descarte.
-  const totalSemilla = total_segunda + total_tercera + total_cuarta + total_cuartaChica;
+  // Segunda, tercera, cuarta, cuarta chica y quinta = semilla aprovechable. Solo merma = descarte.
+  const totalSemilla = total_segunda + total_tercera + total_cuarta + total_cuartaChica + total_quinta;
 
   // ── Comparación original vs proyectado ───────────────────────────────────
   // "original" breakdown: todo lo recibido se clasifica igual que su calibre
@@ -136,6 +138,11 @@ export function ProyeccionPostCriba({
       colorBg: 'bg-indigo-100 text-indigo-800',colorBorder: 'border-indigo-200',
     },
     {
+      label: 'Quinta',      orig: 0,            proy: total_quinta,
+      pct: hasCuarta ? resCuarta.pctQuinta : 0,
+      colorBg: 'bg-violet-100 text-violet-800',colorBorder: 'border-violet-200',
+    },
+    {
       label: 'Merma',       orig: 0,            proy: total_merma,
       pct: (hasTercera ? resTercera.pctMerma : 0),
       colorBg: 'bg-red-100 text-red-800',      colorBorder: 'border-red-200',
@@ -161,6 +168,7 @@ export function ProyeccionPostCriba({
     { label: 'Tercera',      valor: c_tercera,     pct: resCuarta.pctTercera,     colorBar: 'bg-green-500',  colorBg: 'bg-green-100 text-green-800'   },
     { label: 'Cuarta',       valor: c_cuarta,      pct: resCuarta.pctCuarta,      colorBar: 'bg-blue-400',   colorBg: 'bg-blue-100 text-blue-800'     },
     { label: 'Cuarta Chica', valor: c_cuartaChica, pct: resCuarta.pctCuartaChica, colorBar: 'bg-indigo-400', colorBg: 'bg-indigo-100 text-indigo-800' },
+    { label: 'Quinta',       valor: c_quinta,      pct: resCuarta.pctQuinta,      colorBar: 'bg-violet-400', colorBg: 'bg-violet-100 text-violet-800' },
     { label: 'Merma',        valor: c_merma,       pct: resCuarta.pctMerma,       colorBar: 'bg-red-400',    colorBg: 'bg-red-100 text-red-800'       },
   ];
 
@@ -237,7 +245,7 @@ export function ProyeccionPostCriba({
                 <td className="px-3 py-2 rounded-bl-lg">Total</td>
                 <td className="px-3 py-2 text-right font-mono">{totalOriginal.toLocaleString()}</td>
                 <td className="px-3 py-2 text-right font-mono">
-                  {(total_segunda + total_tercera + total_cuarta + total_cuartaChica + total_merma).toFixed(0)}
+                  {(total_segunda + total_tercera + total_cuarta + total_cuartaChica + total_quinta + total_merma).toFixed(0)}
                 </td>
                 <td className="px-3 py-2 text-right" />
                 <td className="px-3 py-2 rounded-br-lg" />
@@ -304,6 +312,7 @@ export function ProyeccionPostCriba({
                 { label: 'Tercera',      val: total_tercera,     color: 'bg-green-500'  },
                 { label: 'Cuarta',       val: total_cuarta,      color: 'bg-blue-400'   },
                 { label: 'Cuarta Chica', val: total_cuartaChica, color: 'bg-indigo-400' },
+                { label: 'Quinta',       val: total_quinta,      color: 'bg-violet-400' },
               ].map((c) => {
                 const p = totalSemilla > 0 ? (c.val / totalSemilla) * 100 : 0;
                 return (

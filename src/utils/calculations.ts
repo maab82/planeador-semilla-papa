@@ -61,34 +61,43 @@ export function calcularMuestreosTercera(sampling: SamplingState, weightPerBag: 
 export function calcularMuestreosCuarta(sampling: SamplingState, weightPerBag: number): SamplingResultsCuarta {
   const muestras = sampling.muestreosCuarta;
   if (muestras.length === 0) {
-    return { pctTercera: 0, pctCuarta: 0, pctCuartaChica: 0, pctMerma: 0,
+    return { pctTercera: 0, pctCuarta: 0, pctCuartaChica: 0, pctQuinta: 0, pctMerma: 0,
              promedioTuberculosMuestra: 0, promedioTuberculosArpilla: 0,
              pesoPorTuberculos: 0, tuberculosPorKg: 0 };
   }
   const totals = muestras.reduce((acc, m) => {
-    const uds = m.unidadesTercera + m.unidadesCuarta + m.unidadesCuartaChica + m.unidadesMerma;
+    // quinta se cuenta para porcentajes pero NO para el promedioTuberculosMuestra
+    // que alimenta el método poblacional, ya que es calibre no aprovechable para siembra.
+    const quinta = m.unidadesQuinta ?? 0;
+    const udsParaPoblacional = m.unidadesTercera + m.unidadesCuarta + m.unidadesCuartaChica + m.unidadesMerma;
     return {
       pesoTotal: acc.pesoTotal + m.pesoMuestra,
       tercera: acc.tercera + m.unidadesTercera,
       cuarta: acc.cuarta + m.unidadesCuarta,
       cuartaChica: acc.cuartaChica + m.unidadesCuartaChica,
+      quinta: acc.quinta + quinta,
       merma: acc.merma + m.unidadesMerma,
-      totalUnidades: acc.totalUnidades + uds,
+      totalUnidadesPoblacional: acc.totalUnidadesPoblacional + udsParaPoblacional,
+      totalUnidades: acc.totalUnidades + udsParaPoblacional + quinta,
     };
-  }, { pesoTotal: 0, tercera: 0, cuarta: 0, cuartaChica: 0, merma: 0, totalUnidades: 0 });
+  }, { pesoTotal: 0, tercera: 0, cuarta: 0, cuartaChica: 0, quinta: 0, merma: 0,
+       totalUnidadesPoblacional: 0, totalUnidades: 0 });
 
   const n = muestras.length;
-  const promedioTuberculosMuestra = totals.totalUnidades / n;
+  // promedioTuberculosMuestra excluye quinta para no afectar la estimación de ha
+  const promedioTuberculosMuestra = totals.totalUnidadesPoblacional / n;
   const promedioPesoMuestra = totals.pesoTotal / n;
   const pesoPorTuberculos = promedioTuberculosMuestra > 0
     ? (promedioPesoMuestra / promedioTuberculosMuestra) * 1000 : 0;
   const tuberculosPorKg = pesoPorTuberculos > 0 ? 1000 / pesoPorTuberculos : 0;
   const promedioTuberculosArpilla = tuberculosPorKg * weightPerBag;
-  const totalUds = totals.tercera + totals.cuarta + totals.cuartaChica + totals.merma;
+  // porcentajes sobre el total incluyendo quinta
+  const totalUds = totals.totalUnidades;
   return {
     pctTercera:     totalUds > 0 ? (totals.tercera     / totalUds) * 100 : 0,
     pctCuarta:      totalUds > 0 ? (totals.cuarta      / totalUds) * 100 : 0,
     pctCuartaChica: totalUds > 0 ? (totals.cuartaChica / totalUds) * 100 : 0,
+    pctQuinta:      totalUds > 0 ? (totals.quinta      / totalUds) * 100 : 0,
     pctMerma:       totalUds > 0 ? (totals.merma       / totalUds) * 100 : 0,
     promedioTuberculosMuestra,
     promedioTuberculosArpilla,

@@ -59,10 +59,11 @@ export function SamplingResults() {
         <Card variant="blue">
           <h4 className="font-semibold text-blue-800 mb-3">Resultados — Cuarta</h4>
           <div className="space-y-2 mb-4">
-            <PctBar label="Tercera" value={resCuarta.pctTercera} color="bg-green-500" />
-            <PctBar label="Cuarta" value={resCuarta.pctCuarta} color="bg-blue-500" />
-            <PctBar label="Cuarta Chica" value={resCuarta.pctCuartaChica} color="bg-blue-300" />
-            <PctBar label="Merma" value={resCuarta.pctMerma} color="bg-red-400" />
+            <PctBar label="Tercera"     value={resCuarta.pctTercera}     color="bg-green-500" />
+            <PctBar label="Cuarta"      value={resCuarta.pctCuarta}      color="bg-blue-500" />
+            <PctBar label="Cuarta Chica"value={resCuarta.pctCuartaChica} color="bg-blue-300" />
+            <PctBar label="Quinta"      value={resCuarta.pctQuinta}      color="bg-violet-400" />
+            <PctBar label="Merma"       value={resCuarta.pctMerma}       color="bg-red-400" />
           </div>
           <div className="space-y-0">
             <StatRow label="Promedio tubérculos/muestra" value={resCuarta.promedioTuberculosMuestra.toFixed(1)} unit="uds" />

@@ -13,6 +13,7 @@ export interface SampleCuarta {
   unidadesTercera: number;
   unidadesCuarta: number;
   unidadesCuartaChica: number;
+  unidadesQuinta: number;
   unidadesMerma: number;
 }
 
@@ -36,6 +37,7 @@ export interface SamplingResultsCuarta {
   pctTercera: number;
   pctCuarta: number;
   pctCuartaChica: number;
+  pctQuinta: number;
   pctMerma: number;
   promedioTuberculosMuestra: number;
   promedioTuberculosArpilla: number;

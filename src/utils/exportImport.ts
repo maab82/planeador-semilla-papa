@@ -13,6 +13,23 @@ export interface AppData {
   notas: NotasState;
 }
 
+// Sanitiza SamplingState: añade campos nuevos ausentes en archivos antiguos.
+function sanitizeSampling(raw: Record<string, unknown>): SamplingState {
+  const muestreosCuarta = (raw['muestreosCuarta'] as Record<string, unknown>[] ?? []).map((m) => ({
+    id:                 (m['id'] as string)                  ?? '',
+    pesoMuestra:        (m['pesoMuestra'] as number)         ?? 0,
+    unidadesTercera:    (m['unidadesTercera'] as number)     ?? 0,
+    unidadesCuarta:     (m['unidadesCuarta'] as number)      ?? 0,
+    unidadesCuartaChica:(m['unidadesCuartaChica'] as number) ?? 0,
+    unidadesQuinta:     (m['unidadesQuinta'] as number)      ?? 0, // v1.2 — default 0
+    unidadesMerma:      (m['unidadesMerma'] as number)       ?? 0,
+  }));
+  return {
+    muestreosTercera: (raw['muestreosTercera'] as SamplingState['muestreosTercera']) ?? [],
+    muestreosCuarta,
+  };
+}
+
 // Sanitiza un PlanningState importado para eliminar campos obsoletos
 // y completar campos nuevos con valores por defecto.
 function sanitizePlanning(raw: Record<string, unknown>): PlanningState {
@@ -33,7 +50,7 @@ export function exportarDatos(
   notas: NotasState,
 ): void {
   const data: AppData = {
-    version: '1.1',
+    version: '1.2',
     exportedAt: new Date().toISOString(),
     inventory,
     sampling,
@@ -67,7 +84,7 @@ export function importarDatos(file: File): Promise<AppData> {
           version: (raw['version'] as string) ?? '1.0',
           exportedAt: (raw['exportedAt'] as string) ?? '',
           inventory: raw['inventory'] as InventoryState,
-          sampling: raw['sampling'] as SamplingState,
+          sampling: sanitizeSampling(raw['sampling'] as Record<string, unknown>),
           planning: sanitizePlanning(raw['planning'] as Record<string, unknown>),
           notas: (raw['notas'] as NotasState) ?? defaultNotas,
         };

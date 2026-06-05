@@ -15,6 +15,7 @@ const emptyForm = (): Omit<SampleCuarta, 'id'> => ({
   unidadesTercera: 0,
   unidadesCuarta: 0,
   unidadesCuartaChica: 0,
+  unidadesQuinta: 0,
   unidadesMerma: 0,
 });
 
@@ -96,6 +97,14 @@ export function SamplingFormCuarta() {
               onChange={(e) => handleFormChange('unidadesCuartaChica', e.target.value)}
             />
             <Input
+              label="Unidades Quinta"
+              type="number"
+              min={0}
+              value={form.unidadesQuinta || ''}
+              placeholder="0"
+              onChange={(e) => handleFormChange('unidadesQuinta', e.target.value)}
+            />
+            <Input
               label="Unidades Merma"
               type="number"
               min={0}
@@ -125,6 +134,7 @@ export function SamplingFormCuarta() {
                 <th className="text-right px-3 py-2">3ra</th>
                 <th className="text-right px-3 py-2">4ta</th>
                 <th className="text-right px-3 py-2">4ta Chica</th>
+                <th className="text-right px-3 py-2">Quinta</th>
                 <th className="text-right px-3 py-2">Merma</th>
                 <th className="text-right px-3 py-2">Total</th>
                 <th className="px-3 py-2"></th>
@@ -132,7 +142,8 @@ export function SamplingFormCuarta() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {sampling.muestreosCuarta.map((s, i) => {
-                const total = s.unidadesTercera + s.unidadesCuarta + s.unidadesCuartaChica + s.unidadesMerma;
+                const quinta = s.unidadesQuinta ?? 0;
+                const total = s.unidadesTercera + s.unidadesCuarta + s.unidadesCuartaChica + quinta + s.unidadesMerma;
                 return (
                   <tr key={s.id} className="hover:bg-gray-50">
                     <td className="px-3 py-2 text-gray-500">{i + 1}</td>
@@ -140,6 +151,7 @@ export function SamplingFormCuarta() {
                     <td className="px-3 py-2 text-right">{s.unidadesTercera}</td>
                     <td className="px-3 py-2 text-right">{s.unidadesCuarta}</td>
                     <td className="px-3 py-2 text-right">{s.unidadesCuartaChica}</td>
+                    <td className="px-3 py-2 text-right">{quinta}</td>
                     <td className="px-3 py-2 text-right">{s.unidadesMerma}</td>
                     <td className="px-3 py-2 text-right font-semibold text-blue-700">{total}</td>
                     <td className="px-3 py-2 text-right">

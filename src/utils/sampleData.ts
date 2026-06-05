@@ -21,9 +21,9 @@ export const sampleSampling: SamplingState = {
     { id: 't3_sample_3', pesoMuestra: 5.4, unidadesSegunda: 14, unidadesTercera: 46, unidadesCuarta: 18, unidadesMerma: 4 },
   ],
   muestreosCuarta: [
-    { id: 't4_sample_1', pesoMuestra: 5.0, unidadesTercera: 8, unidadesCuarta: 52, unidadesCuartaChica: 22, unidadesMerma: 5 },
-    { id: 't4_sample_2', pesoMuestra: 4.8, unidadesTercera: 6, unidadesCuarta: 55, unidadesCuartaChica: 20, unidadesMerma: 4 },
-    { id: 't4_sample_3', pesoMuestra: 5.1, unidadesTercera: 9, unidadesCuarta: 50, unidadesCuartaChica: 24, unidadesMerma: 6 },
+    { id: 't4_sample_1', pesoMuestra: 5.0, unidadesTercera: 8, unidadesCuarta: 52, unidadesCuartaChica: 22, unidadesQuinta: 0, unidadesMerma: 5 },
+    { id: 't4_sample_2', pesoMuestra: 4.8, unidadesTercera: 6, unidadesCuarta: 55, unidadesCuartaChica: 20, unidadesQuinta: 0, unidadesMerma: 4 },
+    { id: 't4_sample_3', pesoMuestra: 5.1, unidadesTercera: 9, unidadesCuarta: 50, unidadesCuartaChica: 24, unidadesQuinta: 0, unidadesMerma: 6 },
   ],
 };
 
