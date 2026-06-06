@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Plus, Trash2, FlaskConical } from 'lucide-react';
+import { Plus, Trash2, FlaskConical, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from '../common/Card';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { useApp } from '../../context/AppContext';
-import type { SampleCuarta } from '../../types/sampling';
+import type { SampleCuarta, OrigenMuestra, VariedadMuestra } from '../../types/sampling';
 
 function generateId() {
   return `t4_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
@@ -17,27 +17,49 @@ const emptyForm = (): Omit<SampleCuarta, 'id'> => ({
   unidadesCuartaChica: 0,
   unidadesQuinta: 0,
   unidadesMerma: 0,
+  origen: undefined,
+  variedad: undefined,
+  lote: '',
+  fecha: '',
 });
 
 export function SamplingFormCuarta() {
   const { sampling, setSampling } = useApp();
   const [form, setForm] = useState(emptyForm());
   const [adding, setAdding] = useState(false);
+  const [showMeta, setShowMeta] = useState(false);
 
   function handleAdd() {
     if (form.pesoMuestra <= 0) return;
-    const newSample: SampleCuarta = { id: generateId(), ...form };
+    const newSample: SampleCuarta = {
+      id: generateId(),
+      pesoMuestra: form.pesoMuestra,
+      unidadesTercera: form.unidadesTercera,
+      unidadesCuarta: form.unidadesCuarta,
+      unidadesCuartaChica: form.unidadesCuartaChica,
+      unidadesQuinta: form.unidadesQuinta,
+      unidadesMerma: form.unidadesMerma,
+      ...(form.origen ? { origen: form.origen } : {}),
+      ...(form.variedad ? { variedad: form.variedad } : {}),
+      ...(form.lote ? { lote: form.lote } : {}),
+      ...(form.fecha ? { fecha: form.fecha } : {}),
+    };
     setSampling((prev) => ({ ...prev, muestreosCuarta: [...prev.muestreosCuarta, newSample] }));
     setForm(emptyForm());
     setAdding(false);
+    setShowMeta(false);
   }
 
   function handleDelete(id: string) {
     setSampling((prev) => ({ ...prev, muestreosCuarta: prev.muestreosCuarta.filter((s) => s.id !== id) }));
   }
 
-  function handleFormChange(field: keyof typeof form, value: string) {
+  function handleNumChange(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: parseFloat(value) || 0 }));
+  }
+
+  function handleTextChange(field: keyof typeof form, value: string) {
+    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   return (
@@ -70,7 +92,7 @@ export function SamplingFormCuarta() {
               unit="kg"
               value={form.pesoMuestra || ''}
               placeholder="0"
-              onChange={(e) => handleFormChange('pesoMuestra', e.target.value)}
+              onChange={(e) => handleNumChange('pesoMuestra', e.target.value)}
             />
             <Input
               label="Unidades Tercera"
@@ -78,7 +100,7 @@ export function SamplingFormCuarta() {
               min={0}
               value={form.unidadesTercera || ''}
               placeholder="0"
-              onChange={(e) => handleFormChange('unidadesTercera', e.target.value)}
+              onChange={(e) => handleNumChange('unidadesTercera', e.target.value)}
             />
             <Input
               label="Unidades Cuarta"
@@ -86,7 +108,7 @@ export function SamplingFormCuarta() {
               min={0}
               value={form.unidadesCuarta || ''}
               placeholder="0"
-              onChange={(e) => handleFormChange('unidadesCuarta', e.target.value)}
+              onChange={(e) => handleNumChange('unidadesCuarta', e.target.value)}
             />
             <Input
               label="Unidades Cuarta Chica"
@@ -94,7 +116,7 @@ export function SamplingFormCuarta() {
               min={0}
               value={form.unidadesCuartaChica || ''}
               placeholder="0"
-              onChange={(e) => handleFormChange('unidadesCuartaChica', e.target.value)}
+              onChange={(e) => handleNumChange('unidadesCuartaChica', e.target.value)}
             />
             <Input
               label="Unidades Quinta"
@@ -102,7 +124,7 @@ export function SamplingFormCuarta() {
               min={0}
               value={form.unidadesQuinta || ''}
               placeholder="0"
-              onChange={(e) => handleFormChange('unidadesQuinta', e.target.value)}
+              onChange={(e) => handleNumChange('unidadesQuinta', e.target.value)}
             />
             <Input
               label="Unidades Merma"
@@ -110,14 +132,67 @@ export function SamplingFormCuarta() {
               min={0}
               value={form.unidadesMerma || ''}
               placeholder="0"
-              onChange={(e) => handleFormChange('unidadesMerma', e.target.value)}
+              onChange={(e) => handleNumChange('unidadesMerma', e.target.value)}
             />
           </div>
+
+          <button
+            type="button"
+            className="flex items-center gap-1 text-xs text-blue-700 mt-3 mb-1 hover:text-blue-900 transition-colors"
+            onClick={() => setShowMeta(!showMeta)}
+          >
+            {showMeta ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            Datos adicionales (opcional)
+          </button>
+
+          {showMeta && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2 pt-3 border-t border-blue-200">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-600">Origen</label>
+                <select
+                  className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={form.origen ?? ''}
+                  onChange={(e) => handleTextChange('origen', e.target.value as OrigenMuestra | '')}
+                >
+                  <option value="">— Sin especificar</option>
+                  <option value="navojoa">Navojoa</option>
+                  <option value="caborca">Caborca</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-600">Variedad</label>
+                <select
+                  className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={form.variedad ?? ''}
+                  onChange={(e) => handleTextChange('variedad', e.target.value as VariedadMuestra | '')}
+                >
+                  <option value="">— Sin especificar</option>
+                  <option value="fianna">Fianna</option>
+                  <option value="orquesta">Orquesta</option>
+                  <option value="otra">Otra</option>
+                </select>
+              </div>
+              <Input
+                label="Lote"
+                type="text"
+                value={form.lote ?? ''}
+                placeholder="Ej: L-01"
+                onChange={(e) => handleTextChange('lote', e.target.value)}
+              />
+              <Input
+                label="Fecha"
+                type="date"
+                value={form.fecha ?? ''}
+                onChange={(e) => handleTextChange('fecha', e.target.value)}
+              />
+            </div>
+          )}
+
           <div className="flex gap-2 mt-3">
             <Button onClick={handleAdd} disabled={form.pesoMuestra <= 0}>
               Guardar Muestra
             </Button>
-            <Button variant="secondary" onClick={() => { setAdding(false); setForm(emptyForm()); }}>
+            <Button variant="secondary" onClick={() => { setAdding(false); setForm(emptyForm()); setShowMeta(false); }}>
               Cancelar
             </Button>
           </div>
@@ -130,6 +205,9 @@ export function SamplingFormCuarta() {
             <thead>
               <tr className="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
                 <th className="text-left px-3 py-2">#</th>
+                <th className="text-left px-3 py-2">Origen</th>
+                <th className="text-left px-3 py-2">Variedad</th>
+                <th className="text-left px-3 py-2">Lote</th>
                 <th className="text-right px-3 py-2">Peso (kg)</th>
                 <th className="text-right px-3 py-2">3ra</th>
                 <th className="text-right px-3 py-2">4ta</th>
@@ -147,6 +225,9 @@ export function SamplingFormCuarta() {
                 return (
                   <tr key={s.id} className="hover:bg-gray-50">
                     <td className="px-3 py-2 text-gray-500">{i + 1}</td>
+                    <td className="px-3 py-2 text-gray-600 capitalize">{s.origen ?? '—'}</td>
+                    <td className="px-3 py-2 text-gray-600 capitalize">{s.variedad ?? '—'}</td>
+                    <td className="px-3 py-2 text-gray-600">{s.lote || '—'}</td>
                     <td className="px-3 py-2 text-right font-medium">{s.pesoMuestra}</td>
                     <td className="px-3 py-2 text-right">{s.unidadesTercera}</td>
                     <td className="px-3 py-2 text-right">{s.unidadesCuarta}</td>
