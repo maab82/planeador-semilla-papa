@@ -59,7 +59,9 @@ export function CalculationMethodSelector() {
 
   function handleBlur() {
     const parsed = parseFloat(inputValue);
-    const valid = !isNaN(parsed) && parsed >= 1 ? parsed : planning.kgHaPersonalizado;
+    // Require ≥ 1000 to commit — below that is operationally nonsensical.
+    // Falls back to the last valid stored value (never persists junk like "4").
+    const valid = !isNaN(parsed) && parsed >= 1000 ? parsed : planning.kgHaPersonalizado;
     setInputValue(String(valid));
     setPlanning((prev) => ({ ...prev, kgHaPersonalizado: valid }));
   }
@@ -97,15 +99,20 @@ export function CalculationMethodSelector() {
             onBlur={handleBlur}
           />
           {planning.kgHaPersonalizado < 1000 && (
+            <p className="mt-1.5 text-xs text-red-700 bg-red-50 border border-red-300 rounded-lg px-2.5 py-1.5 font-medium">
+              ✕ Valor inválido ({planning.kgHaPersonalizado} kg/ha). Ingrese un valor entre 1 000 y 10 000 kg/ha.
+              El Método Histórico no calculará resultados con este valor.
+            </p>
+          )}
+          {planning.kgHaPersonalizado >= 1000 && planning.kgHaPersonalizado > 10000 && (
             <p className="mt-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
-              ⚠ Valor muy bajo. El rango operacional típico es 1000–10 000 kg/ha.
+              ⚠ Valor fuera del rango operativo típico para papa (1 000–10 000 kg/ha).
               Resultados pueden ser poco realistas.
             </p>
           )}
-          {planning.kgHaPersonalizado > 10000 && (
-            <p className="mt-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
-              ⚠ Valor muy alto. El rango operacional típico es 1000–10 000 kg/ha.
-              Resultados pueden ser poco realistas.
+          {planning.kgHaPersonalizado >= 1000 && planning.kgHaPersonalizado <= 10000 && (
+            <p className="mt-1.5 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-2.5 py-1.5">
+              ✓ {planning.kgHaPersonalizado.toLocaleString()} kg/ha — dentro del rango operativo.
             </p>
           )}
         </div>
