@@ -35,7 +35,12 @@ const AppContext = createContext<AppContextType | null>(null);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [inventory, setInventory] = useLocalStorage<InventoryState>('psp_inventory', emptyInventory);
   const [sampling, setSampling] = useLocalStorage<SamplingState>('psp_sampling', emptySampling);
-  const [planning, setPlanning] = useLocalStorage<PlanningState>('psp_planning', samplePlanning);
+  const [rawPlanning, setPlanning] = useLocalStorage<PlanningState>('psp_planning', samplePlanning);
+  // Sanitize: if kgHaPersonalizado was persisted with an invalid value (< 1000),
+  // silently correct it to the default 4633 so old bad data never produces absurd results.
+  const planning: PlanningState = rawPlanning.kgHaPersonalizado < 1000
+    ? { ...rawPlanning, kgHaPersonalizado: 4633 }
+    : rawPlanning;
   const [notas, setNotas] = useLocalStorage<NotasState>('psp_notas', defaultNotas);
 
   function resetAll() {
