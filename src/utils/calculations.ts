@@ -118,10 +118,12 @@ export function calcularMetodoHistorico(
     : CALCULATION_METHODS[planning.metodoCalculo].kgHa;
 
   const metodoLabel = planning.metodoCalculo === 'personalizado'
-    ? 'Personalizado'
+    ? `Personalizado (${kgPorHa.toLocaleString()} kg/ha)`
     : CALCULATION_METHODS[planning.metodoCalculo].label;
 
-  const hectareas = kgPorHa > 0 ? totalKg / kgPorHa : 0;
+  // Block calculation when kg/ha is outside the operational range to prevent absurd results.
+  const kgHaInvalido = kgPorHa < 1000;
+  const hectareas = kgHaInvalido || kgPorHa === 0 ? 0 : totalKg / kgPorHa;
   const diferencia = hectareas - planning.hectareasObjetivo;
   const alcanza = diferencia >= 0;
   const toneladasFaltantes = alcanza ? 0 : (Math.abs(diferencia) * kgPorHa) / 1000;
