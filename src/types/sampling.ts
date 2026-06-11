@@ -14,6 +14,7 @@ export interface SampleTercera extends SampleMeta {
   unidadesSegunda: number;
   unidadesTercera: number;
   unidadesCuarta: number;
+  unidadesQuinta?: number;
   unidadesMerma: number;
 }
 
@@ -36,6 +37,7 @@ export interface SamplingResultsTercera {
   pctSegunda: number;
   pctTercera: number;
   pctCuarta: number;
+  pctQuinta: number;
   pctMerma: number;
   promedioTuberculosMuestra: number;
   promedioTuberculosArpilla: number;

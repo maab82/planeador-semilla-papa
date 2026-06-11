@@ -1,5 +1,5 @@
-import type { InventoryState } from '../types/inventory';
-import type { SamplingState } from '../types/sampling';
+import type { InventoryState, } from '../types/inventory';
+import type { SamplingState, SampleTercera, SampleCuarta } from '../types/sampling';
 import type { PlanningState } from '../types/planning';
 import type { NotasState } from '../types/notas';
 import { defaultNotas } from './defaultNotas';
@@ -13,9 +13,22 @@ export interface AppData {
   notas: NotasState;
 }
 
-// Sanitiza SamplingState: añade campos nuevos ausentes en archivos antiguos.
+// Sanitiza SamplingState: normaliza campo a campo para compatibilidad hacia atrás.
 function sanitizeSampling(raw: Record<string, unknown>): SamplingState {
-  const muestreosCuarta = (raw['muestreosCuarta'] as Record<string, unknown>[] ?? []).map((m) => ({
+  const muestreosTercera: SampleTercera[] = (raw['muestreosTercera'] as Record<string, unknown>[] ?? []).map((m) => ({
+    id:                (m['id'] as string)              ?? '',
+    pesoMuestra:       (m['pesoMuestra'] as number)     ?? 0,
+    unidadesSegunda:   (m['unidadesSegunda'] as number) ?? 0,
+    unidadesTercera:   (m['unidadesTercera'] as number) ?? 0,
+    unidadesCuarta:    (m['unidadesCuarta'] as number)  ?? 0,
+    unidadesQuinta:    (m['unidadesQuinta'] as number)  ?? 0, // v1.3 — default 0
+    unidadesMerma:     (m['unidadesMerma'] as number)   ?? 0,
+    origen:   (m['origen']   as SampleTercera['origen'])   ?? undefined,
+    variedad: (m['variedad'] as SampleTercera['variedad']) ?? undefined,
+    lote:     (m['lote']     as string | undefined)        ?? undefined,
+    fecha:    (m['fecha']    as string | undefined)        ?? undefined,
+  }));
+  const muestreosCuarta: SampleCuarta[] = (raw['muestreosCuarta'] as Record<string, unknown>[] ?? []).map((m) => ({
     id:                 (m['id'] as string)                  ?? '',
     pesoMuestra:        (m['pesoMuestra'] as number)         ?? 0,
     unidadesTercera:    (m['unidadesTercera'] as number)     ?? 0,
@@ -23,11 +36,12 @@ function sanitizeSampling(raw: Record<string, unknown>): SamplingState {
     unidadesCuartaChica:(m['unidadesCuartaChica'] as number) ?? 0,
     unidadesQuinta:     (m['unidadesQuinta'] as number)      ?? 0, // v1.2 — default 0
     unidadesMerma:      (m['unidadesMerma'] as number)       ?? 0,
+    origen:   (m['origen']   as SampleCuarta['origen'])   ?? undefined,
+    variedad: (m['variedad'] as SampleCuarta['variedad']) ?? undefined,
+    lote:     (m['lote']     as string | undefined)       ?? undefined,
+    fecha:    (m['fecha']    as string | undefined)       ?? undefined,
   }));
-  return {
-    muestreosTercera: (raw['muestreosTercera'] as SamplingState['muestreosTercera']) ?? [],
-    muestreosCuarta,
-  };
+  return { muestreosTercera, muestreosCuarta };
 }
 
 // Sanitiza un PlanningState importado para eliminar campos obsoletos
@@ -50,7 +64,7 @@ export function exportarDatos(
   notas: NotasState,
 ): void {
   const data: AppData = {
-    version: '1.2',
+    version: '1.3',
     exportedAt: new Date().toISOString(),
     inventory,
     sampling,

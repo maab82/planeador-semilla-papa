@@ -43,8 +43,9 @@ export function SamplingResults() {
           <div className="space-y-2 mb-4">
             <PctBar label="Segunda" value={resTercera.pctSegunda} color="bg-green-400" />
             <PctBar label="Tercera" value={resTercera.pctTercera} color="bg-green-600" />
-            <PctBar label="Cuarta" value={resTercera.pctCuarta} color="bg-yellow-400" />
-            <PctBar label="Merma" value={resTercera.pctMerma} color="bg-red-400" />
+            <PctBar label="Cuarta"  value={resTercera.pctCuarta}  color="bg-yellow-400" />
+            <PctBar label="Quinta"  value={resTercera.pctQuinta}  color="bg-violet-400" />
+            <PctBar label="Merma"   value={resTercera.pctMerma}   color="bg-red-400" />
           </div>
           <div className="space-y-0">
             <StatRow label="Promedio tubérculos/muestra" value={resTercera.promedioTuberculosMuestra.toFixed(1)} unit="uds" />
