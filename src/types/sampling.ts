@@ -6,6 +6,14 @@ export interface SampleMeta {
   variedad?: VariedadMuestra;
   lote?: string;
   fecha?: string;
+  // kg por categoría (opcionales — modelo dual kg + unidades)
+  kgSegunda?: number;
+  kgTercera?: number;
+  kgCuarta?: number;
+  kgQuinta?: number;
+  kgNoAprovechable?: number;
+  kgTierra?: number;
+  kgSanidad?: number;
 }
 
 export interface SampleTercera extends SampleMeta {
