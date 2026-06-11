@@ -94,7 +94,11 @@ export function SamplingFormCuarta() {
   const [adding, setAdding] = useState(false);
 
   function handleAdd() {
-    if (form.pesoMuestra <= 0) return;
+    console.log('[DEBUG T4] handleAdd fired. pesoMuestra:', form.pesoMuestra);
+    if (form.pesoMuestra <= 0) {
+      console.log('[DEBUG T4] BLOCKED: pesoMuestra <= 0');
+      return;
+    }
     const newSample: SampleCuarta = {
       id: generateId(),
       pesoMuestra: form.pesoMuestra,
@@ -108,9 +112,25 @@ export function SamplingFormCuarta() {
       ...(form.lote ? { lote: form.lote } : {}),
       ...(form.fecha ? { fecha: form.fecha } : {}),
     };
-    setSampling((prev) => ({ ...prev, muestreosCuarta: [...prev.muestreosCuarta, newSample] }));
+    console.log('[DEBUG T4] newSample built:', JSON.stringify(newSample));
+    setSampling((prev) => {
+      console.log('[DEBUG T4] setSampling updater — prev.muestreosCuarta.length:', prev.muestreosCuarta.length);
+      const updated = { ...prev, muestreosCuarta: [...prev.muestreosCuarta, newSample] };
+      console.log('[DEBUG T4] updated.muestreosCuarta.length:', updated.muestreosCuarta.length);
+      return updated;
+    });
+    setTimeout(() => {
+      const raw = localStorage.getItem('psp_sampling');
+      try {
+        const parsed = raw ? JSON.parse(raw) : null;
+        console.log('[DEBUG T4] localStorage psp_sampling.muestreosCuarta.length:', parsed?.muestreosCuarta?.length ?? 'N/A');
+      } catch {
+        console.log('[DEBUG T4] localStorage psp_sampling raw:', raw);
+      }
+    }, 300);
     setForm(emptyForm());
     setAdding(false);
+    console.log('[DEBUG T4] handleAdd complete — form reset, adding=false');
   }
 
   function handleDelete(id: string) {

@@ -100,7 +100,11 @@ export function SamplingFormTercera() {
   const [adding, setAdding] = useState(false);
 
   function handleAdd() {
-    if (form.pesoMuestra <= 0) return;
+    console.log('[DEBUG T3] handleAdd fired. pesoMuestra:', form.pesoMuestra);
+    if (form.pesoMuestra <= 0) {
+      console.log('[DEBUG T3] BLOCKED: pesoMuestra <= 0');
+      return;
+    }
     const newSample: SampleTercera = {
       id: generateId(),
       pesoMuestra: form.pesoMuestra,
@@ -114,9 +118,25 @@ export function SamplingFormTercera() {
       ...(form.lote ? { lote: form.lote } : {}),
       ...(form.fecha ? { fecha: form.fecha } : {}),
     };
-    setSampling((prev) => ({ ...prev, muestreosTercera: [...prev.muestreosTercera, newSample] }));
+    console.log('[DEBUG T3] newSample built:', JSON.stringify(newSample));
+    setSampling((prev) => {
+      console.log('[DEBUG T3] setSampling updater — prev.muestreosTercera.length:', prev.muestreosTercera.length);
+      const updated = { ...prev, muestreosTercera: [...prev.muestreosTercera, newSample] };
+      console.log('[DEBUG T3] updated.muestreosTercera.length:', updated.muestreosTercera.length);
+      return updated;
+    });
+    setTimeout(() => {
+      const raw = localStorage.getItem('psp_sampling');
+      try {
+        const parsed = raw ? JSON.parse(raw) : null;
+        console.log('[DEBUG T3] localStorage psp_sampling.muestreosTercera.length:', parsed?.muestreosTercera?.length ?? 'N/A');
+      } catch {
+        console.log('[DEBUG T3] localStorage psp_sampling raw:', raw);
+      }
+    }, 300);
     setForm(emptyForm());
     setAdding(false);
+    console.log('[DEBUG T3] handleAdd complete — form reset, adding=false');
   }
 
   function handleDelete(id: string) {
