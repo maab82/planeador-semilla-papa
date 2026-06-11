@@ -1,11 +1,15 @@
-export type OrigenMuestra = 'navojoa' | 'caborca';
+export type OrigenMuestra = 'navojoa' | 'caborca' | 'otro';
 export type VariedadMuestra = 'fianna' | 'orquesta' | 'otra';
 
 export interface SampleMeta {
+  proveedor?: string;
   origen?: OrigenMuestra;
   variedad?: VariedadMuestra;
-  lote?: string;
-  fecha?: string;
+  lote?: string;           // kept for backward compat — use viaje for new records
+  viaje?: string;          // "No. de Viaje / Thermo" — v1.4
+  fecha?: string;          // kept for backward compat — use fechaRecepcion for new records
+  fechaRecepcion?: string; // v1.4
+  toneladasViaje?: number; // v1.4, optional
 }
 
 export interface SampleTercera extends SampleMeta {

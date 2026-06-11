@@ -123,13 +123,13 @@ function OrigenCard({ label, muestras, accentBar, accentText, accentBorder, acce
             <div className="flex gap-2 text-xs">
               <div className="flex-1 bg-emerald-50 border border-emerald-100 rounded-lg px-2 py-1.5">
                 <p className="text-emerald-600 font-semibold uppercase text-xs">Mejor</p>
-                <p className="text-gray-700 font-medium truncate">{mejor.lote?.toUpperCase() || 'Sin id'}</p>
+                <p className="text-gray-700 font-medium truncate">{(mejor.viaje || mejor.lote)?.toUpperCase() || mejor.proveedor || 'Sin id'}</p>
                 <p className="text-gray-500">{mejor.pctUtil.toFixed(1)}% útil</p>
               </div>
               {sorted.length > 1 && (
                 <div className="flex-1 bg-red-50 border border-red-100 rounded-lg px-2 py-1.5">
                   <p className="text-red-600 font-semibold uppercase text-xs">Menor</p>
-                  <p className="text-gray-700 font-medium truncate">{peor.lote?.toUpperCase() || 'Sin id'}</p>
+                  <p className="text-gray-700 font-medium truncate">{(peor.viaje || peor.lote)?.toUpperCase() || peor.proveedor || 'Sin id'}</p>
                   <p className="text-gray-500">{peor.pctUtil.toFixed(1)}% útil</p>
                 </div>
               )}
@@ -154,8 +154,9 @@ export function ResumenPorOrigen() {
 
   const navojoa = conOrigen.filter((m) => m.origen === 'navojoa');
   const caborca = conOrigen.filter((m) => m.origen === 'caborca');
+  const otro = conOrigen.filter((m) => m.origen === 'otro');
 
-  if (navojoa.length === 0 && caborca.length === 0) return null;
+  if (navojoa.length === 0 && caborca.length === 0 && otro.length === 0) return null;
 
   return (
     <div>
@@ -182,6 +183,16 @@ export function ResumenPorOrigen() {
             accentText="text-blue-700"
             accentBorder="border-blue-300"
             accentBg="bg-blue-50"
+          />
+        )}
+        {otro.length > 0 && (
+          <OrigenCard
+            label="Otro"
+            muestras={otro}
+            accentBar="bg-gray-600"
+            accentText="text-gray-700"
+            accentBorder="border-gray-300"
+            accentBg="bg-gray-50"
           />
         )}
       </div>

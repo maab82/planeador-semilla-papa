@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, FlaskConical, MapPin, Leaf, Package, Calendar } from 'lucide-react';
+import { Plus, Trash2, FlaskConical, MapPin, Leaf, Package, Calendar, Truck, Weight } from 'lucide-react';
 import { Card } from '../common/Card';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
@@ -10,6 +10,10 @@ function generateId() {
   return `t4_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 const emptyForm = (): Omit<SampleCuarta, 'id'> => ({
   pesoMuestra: 0,
   unidadesTercera: 0,
@@ -17,16 +21,25 @@ const emptyForm = (): Omit<SampleCuarta, 'id'> => ({
   unidadesCuartaChica: 0,
   unidadesQuinta: 0,
   unidadesMerma: 0,
+  proveedor: '',
   origen: undefined,
   variedad: undefined,
-  lote: '',
-  fecha: '',
+  viaje: '',
+  fechaRecepcion: todayISO(),
+  toneladasViaje: undefined,
 });
 
 function formatFecha(fecha?: string) {
   if (!fecha) return null;
   const [y, m, d] = fecha.split('-');
   return `${d}/${m}/${y}`;
+}
+
+function origenLabel(o?: OrigenMuestra) {
+  if (o === 'navojoa') return 'Navojoa';
+  if (o === 'caborca') return 'Caborca';
+  if (o === 'otro') return 'Otro';
+  return null;
 }
 
 function SampleCard({ s, index, onDelete }: {
@@ -39,19 +52,32 @@ function SampleCard({ s, index, onDelete }: {
   const pctMerma = total > 0 ? ((s.unidadesMerma / total) * 100).toFixed(0) : '0';
   const pctUtil = total > 0 ? (((s.unidadesTercera + s.unidadesCuarta + s.unidadesCuartaChica) / total) * 100).toFixed(0) : '0';
 
+  const proveedorText = s.proveedor || 'Proveedor no especificado';
+  const origenText = origenLabel(s.origen);
+  const viajeText = s.viaje || s.lote;
+  const fechaText = formatFecha(s.fechaRecepcion ?? s.fecha ?? undefined);
+  const variedadText = s.variedad ? s.variedad.charAt(0).toUpperCase() + s.variedad.slice(1) : null;
+
   return (
     <div className="border border-gray-200 rounded-xl p-3 bg-white hover:border-blue-300 transition-colors">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="min-w-0">
-          <p className="font-semibold text-gray-900 text-sm truncate uppercase">
-            {s.lote || `Muestra #${index + 1}`}
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-gray-900 text-sm leading-tight uppercase">
+            {proveedorText}
+            {origenText && <span className="text-gray-500"> · {origenText}</span>}
           </p>
           <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-0.5">
-            {s.variedad && <span className="text-xs text-gray-500 capitalize">{s.variedad}</span>}
-            {s.origen && <span className="text-xs text-gray-500 capitalize">{s.origen === 'navojoa' ? 'Navojoa' : 'Caborca'}</span>}
-            {s.fecha && <span className="text-xs text-gray-400">{formatFecha(s.fecha)}</span>}
-            {!s.variedad && !s.origen && !s.fecha && (
-              <span className="text-xs text-gray-400">Sin identificación</span>
+            {viajeText && (
+              <span className="text-xs text-gray-600 font-medium">Viaje {viajeText}</span>
+            )}
+            {variedadText && (
+              <span className="text-xs text-gray-500">{variedadText}</span>
+            )}
+            {fechaText && (
+              <span className="text-xs text-gray-400">{fechaText}</span>
+            )}
+            {!viajeText && !variedadText && !fechaText && (
+              <span className="text-xs text-gray-400">Muestra #{index + 1}</span>
             )}
           </div>
         </div>
@@ -65,12 +91,12 @@ function SampleCard({ s, index, onDelete }: {
 
       <div className="grid grid-cols-6 gap-1 text-center">
         {[
-          { label: '3ra', value: s.unidadesTercera, color: 'text-green-700' },
-          { label: '4ta', value: s.unidadesCuarta, color: 'text-blue-700' },
+          { label: '3ra',    value: s.unidadesTercera,     color: 'text-green-700' },
+          { label: '4ta',    value: s.unidadesCuarta,      color: 'text-blue-700' },
           { label: '4ta Ch', value: s.unidadesCuartaChica, color: 'text-blue-500' },
-          { label: 'Quinta', value: quinta, color: 'text-violet-500' },
-          { label: 'Merma', value: s.unidadesMerma, color: 'text-red-500' },
-          { label: 'Total', value: total, color: 'text-gray-800 font-semibold' },
+          { label: 'Qta',    value: quinta,                 color: 'text-violet-500' },
+          { label: 'Merma',  value: s.unidadesMerma,       color: 'text-red-500' },
+          { label: 'Total',  value: total,                  color: 'text-gray-800 font-semibold' },
         ].map(({ label, value, color }) => (
           <div key={label} className="bg-gray-50 rounded-lg py-1 px-0.5">
             <p className={`text-sm font-medium ${color}`}>{value}</p>
@@ -92,9 +118,16 @@ export function SamplingFormCuarta() {
   const { sampling, setSampling } = useApp();
   const [form, setForm] = useState(emptyForm());
   const [adding, setAdding] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
+
+  const viajeValido = !!(form.proveedor && form.origen && form.viaje);
 
   function handleAdd() {
     if (form.pesoMuestra <= 0) return;
+    if (!viajeValido) {
+      setShowValidation(true);
+      return;
+    }
     const newSample: SampleCuarta = {
       id: generateId(),
       pesoMuestra: form.pesoMuestra,
@@ -103,14 +136,17 @@ export function SamplingFormCuarta() {
       unidadesCuartaChica: form.unidadesCuartaChica,
       unidadesQuinta: form.unidadesQuinta,
       unidadesMerma: form.unidadesMerma,
-      ...(form.origen ? { origen: form.origen } : {}),
+      proveedor: form.proveedor,
+      origen: form.origen,
+      viaje: form.viaje,
+      fechaRecepcion: form.fechaRecepcion,
       ...(form.variedad ? { variedad: form.variedad } : {}),
-      ...(form.lote ? { lote: form.lote } : {}),
-      ...(form.fecha ? { fecha: form.fecha } : {}),
+      ...(form.toneladasViaje !== undefined ? { toneladasViaje: form.toneladasViaje } : {}),
     };
     setSampling((prev) => ({ ...prev, muestreosCuarta: [...prev.muestreosCuarta, newSample] }));
     setForm(emptyForm());
     setAdding(false);
+    setShowValidation(false);
   }
 
   function handleDelete(id: string) {
@@ -123,6 +159,7 @@ export function SamplingFormCuarta() {
 
   function handleText(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
+    if (showValidation) setShowValidation(false);
   }
 
   return (
@@ -147,33 +184,70 @@ export function SamplingFormCuarta() {
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 space-y-4">
           <p className="text-sm font-semibold text-blue-800">Nueva Muestra — Cuarta</p>
 
-          {/* Identificación del lote */}
+          {/* Datos del Viaje */}
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
-              <Package size={11} /> Identificación
+              <Truck size={11} /> Datos del Viaje
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <Input
-                label="Lote / Viaje"
-                type="text"
-                value={form.lote ?? ''}
-                placeholder="Thermo 478"
-                onChange={(e) => handleText('lote', e.target.value)}
-              />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {/* Proveedor */}
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
-                  <MapPin size={10} /> Origen
+                  <Package size={10} /> Proveedor <span className="text-red-400">*</span>
+                </label>
+                <select
+                  className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={form.proveedor ?? ''}
+                  onChange={(e) => handleText('proveedor', e.target.value)}
+                >
+                  <option value="">— Seleccionar</option>
+                  <option value="Agrofon">Agrofon</option>
+                  <option value="Agrícola Rábago">Agrícola Rábago</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+              {/* Origen */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                  <MapPin size={10} /> Origen <span className="text-red-400">*</span>
                 </label>
                 <select
                   className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                   value={form.origen ?? ''}
                   onChange={(e) => handleText('origen', e.target.value as OrigenMuestra | '')}
                 >
-                  <option value="">— Sin especificar</option>
+                  <option value="">— Seleccionar</option>
                   <option value="navojoa">Navojoa</option>
                   <option value="caborca">Caborca</option>
+                  <option value="otro">Otro</option>
                 </select>
               </div>
+              {/* Viaje */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                  <Truck size={10} /> No. de Viaje / Thermo <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={form.viaje ?? ''}
+                  placeholder="6165"
+                  onChange={(e) => handleText('viaje', e.target.value)}
+                />
+              </div>
+              {/* Fecha Recepción */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                  <Calendar size={10} /> Fecha Recepción
+                </label>
+                <input
+                  type="date"
+                  className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={form.fechaRecepcion ?? ''}
+                  onChange={(e) => handleText('fechaRecepcion', e.target.value)}
+                />
+              </div>
+              {/* Variedad */}
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
                   <Leaf size={10} /> Variedad
@@ -189,15 +263,19 @@ export function SamplingFormCuarta() {
                   <option value="otra">Otra</option>
                 </select>
               </div>
+              {/* Toneladas del Viaje */}
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
-                  <Calendar size={10} /> Fecha
+                  <Weight size={10} /> Tons. del Viaje
                 </label>
                 <input
-                  type="date"
+                  type="number"
+                  min={0}
+                  step={0.1}
                   className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  value={form.fecha ?? ''}
-                  onChange={(e) => handleText('fecha', e.target.value)}
+                  value={form.toneladasViaje ?? ''}
+                  placeholder="0.0"
+                  onChange={(e) => setForm((prev) => ({ ...prev, toneladasViaje: parseFloat(e.target.value) || undefined }))}
                 />
               </div>
             </div>
@@ -218,9 +296,15 @@ export function SamplingFormCuarta() {
             </div>
           </div>
 
+          {showValidation && !viajeValido && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              Complete los datos del viaje antes de registrar el muestreo.
+            </p>
+          )}
+
           <div className="flex gap-2">
             <Button onClick={handleAdd} disabled={form.pesoMuestra <= 0}>Guardar Muestra</Button>
-            <Button variant="secondary" onClick={() => { setAdding(false); setForm(emptyForm()); }}>Cancelar</Button>
+            <Button variant="secondary" onClick={() => { setAdding(false); setForm(emptyForm()); setShowValidation(false); }}>Cancelar</Button>
           </div>
         </div>
       )}

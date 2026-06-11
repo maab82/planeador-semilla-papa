@@ -15,32 +15,53 @@ export interface AppData {
 
 // Sanitiza SamplingState: normaliza campo a campo para compatibilidad hacia atrás.
 function sanitizeSampling(raw: Record<string, unknown>): SamplingState {
-  const muestreosTercera: SampleTercera[] = (raw['muestreosTercera'] as Record<string, unknown>[] ?? []).map((m) => ({
-    id:                (m['id'] as string)              ?? '',
-    pesoMuestra:       (m['pesoMuestra'] as number)     ?? 0,
-    unidadesSegunda:   (m['unidadesSegunda'] as number) ?? 0,
-    unidadesTercera:   (m['unidadesTercera'] as number) ?? 0,
-    unidadesCuarta:    (m['unidadesCuarta'] as number)  ?? 0,
-    unidadesQuinta:    (m['unidadesQuinta'] as number)  ?? 0, // v1.3 — default 0
-    unidadesMerma:     (m['unidadesMerma'] as number)   ?? 0,
-    origen:   (m['origen']   as SampleTercera['origen'])   ?? undefined,
-    variedad: (m['variedad'] as SampleTercera['variedad']) ?? undefined,
-    lote:     (m['lote']     as string | undefined)        ?? undefined,
-    fecha:    (m['fecha']    as string | undefined)        ?? undefined,
-  }));
-  const muestreosCuarta: SampleCuarta[] = (raw['muestreosCuarta'] as Record<string, unknown>[] ?? []).map((m) => ({
-    id:                 (m['id'] as string)                  ?? '',
-    pesoMuestra:        (m['pesoMuestra'] as number)         ?? 0,
-    unidadesTercera:    (m['unidadesTercera'] as number)     ?? 0,
-    unidadesCuarta:     (m['unidadesCuarta'] as number)      ?? 0,
-    unidadesCuartaChica:(m['unidadesCuartaChica'] as number) ?? 0,
-    unidadesQuinta:     (m['unidadesQuinta'] as number)      ?? 0, // v1.2 — default 0
-    unidadesMerma:      (m['unidadesMerma'] as number)       ?? 0,
-    origen:   (m['origen']   as SampleCuarta['origen'])   ?? undefined,
-    variedad: (m['variedad'] as SampleCuarta['variedad']) ?? undefined,
-    lote:     (m['lote']     as string | undefined)       ?? undefined,
-    fecha:    (m['fecha']    as string | undefined)       ?? undefined,
-  }));
+  const sanitizeMeta = (m: Record<string, unknown>, tipo: 'tercera' | 'cuarta') => ({
+    proveedor:      (m['proveedor']      as string | undefined) ?? undefined,
+    origen:         (m['origen']         as SampleTercera['origen']) ?? undefined,
+    variedad:       (m['variedad']       as SampleTercera['variedad']) ?? undefined,
+    // v1.4: viaje replaces lote — migrate lote→viaje if viaje absent
+    lote:           (m['lote']           as string | undefined) ?? undefined,
+    viaje:          (m['viaje']          as string | undefined) ?? (m['lote'] as string | undefined) ?? undefined,
+    // v1.4: fechaRecepcion replaces fecha — migrate fecha→fechaRecepcion if absent
+    fecha:          (m['fecha']          as string | undefined) ?? undefined,
+    fechaRecepcion: (m['fechaRecepcion'] as string | undefined) ?? (m['fecha'] as string | undefined) ?? undefined,
+    toneladasViaje: (m['toneladasViaje'] as number | undefined) ?? undefined,
+    // suppress unused param warning
+    _: tipo,
+  });
+
+  const muestreosTercera: SampleTercera[] = (raw['muestreosTercera'] as Record<string, unknown>[] ?? []).map((m) => {
+    const meta = sanitizeMeta(m, 'tercera');
+    return {
+      id:              (m['id'] as string)              ?? '',
+      pesoMuestra:     (m['pesoMuestra'] as number)     ?? 0,
+      unidadesSegunda: (m['unidadesSegunda'] as number) ?? 0,
+      unidadesTercera: (m['unidadesTercera'] as number) ?? 0,
+      unidadesCuarta:  (m['unidadesCuarta'] as number)  ?? 0,
+      unidadesQuinta:  (m['unidadesQuinta'] as number)  ?? 0,
+      unidadesMerma:   (m['unidadesMerma'] as number)   ?? 0,
+      proveedor: meta.proveedor, origen: meta.origen, variedad: meta.variedad,
+      lote: meta.lote, viaje: meta.viaje,
+      fecha: meta.fecha, fechaRecepcion: meta.fechaRecepcion,
+      toneladasViaje: meta.toneladasViaje,
+    };
+  });
+  const muestreosCuarta: SampleCuarta[] = (raw['muestreosCuarta'] as Record<string, unknown>[] ?? []).map((m) => {
+    const meta = sanitizeMeta(m, 'cuarta');
+    return {
+      id:                  (m['id'] as string)                  ?? '',
+      pesoMuestra:         (m['pesoMuestra'] as number)         ?? 0,
+      unidadesTercera:     (m['unidadesTercera'] as number)     ?? 0,
+      unidadesCuarta:      (m['unidadesCuarta'] as number)      ?? 0,
+      unidadesCuartaChica: (m['unidadesCuartaChica'] as number) ?? 0,
+      unidadesQuinta:      (m['unidadesQuinta'] as number)      ?? 0,
+      unidadesMerma:       (m['unidadesMerma'] as number)       ?? 0,
+      proveedor: meta.proveedor, origen: meta.origen, variedad: meta.variedad,
+      lote: meta.lote, viaje: meta.viaje,
+      fecha: meta.fecha, fechaRecepcion: meta.fechaRecepcion,
+      toneladasViaje: meta.toneladasViaje,
+    };
+  });
   return { muestreosTercera, muestreosCuarta };
 }
 
@@ -64,7 +85,7 @@ export function exportarDatos(
   notas: NotasState,
 ): void {
   const data: AppData = {
-    version: '1.3',
+    version: '1.4',
     exportedAt: new Date().toISOString(),
     inventory,
     sampling,

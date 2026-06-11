@@ -1,7 +1,7 @@
 import { useApp } from '../../context/AppContext';
 import { evaluarTercera, evaluarCuarta, NIVEL_LABEL, NIVEL_DOT } from '../../utils/samplingQuality';
 import type { CalidadMuestra } from '../../utils/samplingQuality';
-import { AlertTriangle, CheckCircle, XCircle, MapPin, Leaf, Calendar } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 function formatFecha(fecha?: string) {
   if (!fecha) return null;
@@ -96,12 +96,27 @@ function AlertChip({ tipo, mensaje }: { tipo: 'warning' | 'danger' | 'success'; 
   );
 }
 
+function origenLabel(o?: string) {
+  if (o === 'navojoa') return 'Navojoa';
+  if (o === 'caborca') return 'Caborca';
+  if (o === 'otro') return 'Otro';
+  return null;
+}
+
 function QualityCard({ c }: { c: CalidadMuestra }) {
-  const loteLabel = c.lote ? c.lote.toUpperCase() : 'SIN IDENTIFICAR';
-  const fechaFmt = formatFecha(c.fecha);
-  const origenLabel = c.origen === 'navojoa' ? 'Navojoa' : c.origen === 'caborca' ? 'Caborca' : null;
-  const variedadLabel = c.variedad ? c.variedad.charAt(0).toUpperCase() + c.variedad.slice(1) : null;
-  const calibreLabel = c.calibre === 'tercera' ? 'Lote Tercera' : 'Lote Cuarta';
+  const calibreLabel = c.calibre === 'tercera' ? 'Tercera' : 'Cuarta';
+  const proveedorText = c.proveedor?.toUpperCase() || 'PROVEEDOR NO ESPECIFICADO';
+  const origenText = origenLabel(c.origen);
+  const viajeText = c.viaje || c.lote;
+  const variedadText = c.variedad ? c.variedad.charAt(0).toUpperCase() + c.variedad.slice(1) : null;
+  const fechaText = formatFecha(c.fechaRecepcion ?? c.fecha ?? undefined);
+
+  const headerLine1Parts = [proveedorText, origenText].filter(Boolean).join(' · ');
+  const headerLine2Parts = [
+    viajeText ? `Viaje ${viajeText}` : null,
+    variedadText,
+    fechaText,
+  ].filter(Boolean).join(' · ');
 
   return (
     <div className={`border-2 rounded-xl overflow-hidden ${NIVEL_BG[c.nivel]}`}>
@@ -112,25 +127,15 @@ function QualityCard({ c }: { c: CalidadMuestra }) {
       </div>
 
       <div className="p-4">
-        {/* Título: lote */}
-        <h4 className="font-bold text-gray-900 text-base leading-tight">{loteLabel}</h4>
+        {/* Título: proveedor · origen */}
+        <h4 className="font-bold text-gray-900 text-sm leading-tight">{headerLine1Parts}</h4>
 
-        {/* Sub-identidad */}
-        <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1 mb-3">
-          {variedadLabel && (
-            <span className="text-xs text-gray-600 flex items-center gap-1">
-              <Leaf size={10} className="text-gray-400" />{variedadLabel}
-            </span>
-          )}
-          {origenLabel && (
-            <span className="text-xs text-gray-600 flex items-center gap-1">
-              <MapPin size={10} className="text-gray-400" />{origenLabel}
-            </span>
-          )}
-          {fechaFmt && (
-            <span className="text-xs text-gray-400 flex items-center gap-1">
-              <Calendar size={10} className="text-gray-300" />{fechaFmt}
-            </span>
+        {/* Sub-identidad: viaje · variedad · fecha */}
+        <div className="mt-0.5 mb-3">
+          {headerLine2Parts ? (
+            <p className="text-xs text-gray-500">{headerLine2Parts}</p>
+          ) : (
+            <p className="text-xs text-gray-400">Sin identificación de viaje</p>
           )}
         </div>
 

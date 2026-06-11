@@ -23,9 +23,11 @@ export function ComparadorMuestreos() {
 
       <div className="space-y-2">
         {todas.map((c, rank) => {
-          const loteLabel = c.lote ? c.lote.toUpperCase() : `Muestra #${rank + 1}`;
-          const origenLabel = c.origen === 'navojoa' ? 'Navojoa' : c.origen === 'caborca' ? 'Caborca' : '—';
+          const viajeText = c.viaje || c.lote;
+          const loteLabel = viajeText ? `Viaje ${viajeText}` : c.proveedor?.toUpperCase() || `Muestra #${rank + 1}`;
+          const origenLabel = c.origen === 'navojoa' ? 'Navojoa' : c.origen === 'caborca' ? 'Caborca' : c.origen === 'otro' ? 'Otro' : '—';
           const variedadLabel = c.variedad ? c.variedad.charAt(0).toUpperCase() + c.variedad.slice(1) : '—';
+          const proveedorLabel = c.proveedor || '—';
           const calibreLabel = c.calibre === 'tercera' ? '3ra' : '4ta';
 
           const barColor =
@@ -51,7 +53,7 @@ export function ComparadorMuestreos() {
                   <p className="font-semibold text-gray-900 text-sm truncate">{loteLabel}</p>
                   <span className="text-xs text-gray-400 shrink-0">{calibreLabel}</span>
                 </div>
-                <p className="text-xs text-gray-500">{variedadLabel} · {origenLabel}</p>
+                <p className="text-xs text-gray-500">{proveedorLabel} · {variedadLabel} · {origenLabel}</p>
               </div>
 
               {/* Barra útil */}

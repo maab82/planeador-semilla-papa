@@ -11,10 +11,13 @@ export interface AlertaMuestra {
 export interface CalidadMuestra {
   id: string;
   calibre: 'tercera' | 'cuarta';
+  proveedor?: string;
   origen?: OrigenMuestra;
   variedad?: string;
-  lote?: string;
-  fecha?: string;
+  viaje?: string;
+  lote?: string;          // backward compat
+  fechaRecepcion?: string;
+  fecha?: string;         // backward compat
   pctUtil: number;
   pctMerma: number;
   pctQuinta?: number;
@@ -36,7 +39,8 @@ export function evaluarTercera(s: SampleTercera): CalidadMuestra {
   if (total === 0) {
     return {
       id: s.id, calibre: 'tercera',
-      origen: s.origen, variedad: s.variedad, lote: s.lote, fecha: s.fecha,
+      proveedor: s.proveedor, origen: s.origen, variedad: s.variedad,
+      viaje: s.viaje, lote: s.lote, fechaRecepcion: s.fechaRecepcion, fecha: s.fecha,
       pctUtil: 0, pctMerma: 0, pctQuinta: 0, nivel: 'deficiente', alertas: [],
       detalles: { segunda: 0, tercera: 0, cuarta: 0, quinta: 0, merma: 0 },
     };
@@ -72,7 +76,8 @@ export function evaluarCuarta(s: SampleCuarta): CalidadMuestra {
   if (total === 0) {
     return {
       id: s.id, calibre: 'cuarta',
-      origen: s.origen, variedad: s.variedad, lote: s.lote, fecha: s.fecha,
+      proveedor: s.proveedor, origen: s.origen, variedad: s.variedad,
+      viaje: s.viaje, lote: s.lote, fechaRecepcion: s.fechaRecepcion, fecha: s.fecha,
       pctUtil: 0, pctMerma: 0, pctQuinta: 0, nivel: 'deficiente', alertas: [],
       detalles: { tercera: 0, cuarta: 0, cuartaChica: 0, quinta: 0, merma: 0 },
     };
