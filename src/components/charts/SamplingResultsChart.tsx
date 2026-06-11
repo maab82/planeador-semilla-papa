@@ -19,8 +19,9 @@ export function SamplingResultsChart() {
       calibre: 'Tercera',
       'Segunda': parseFloat(resTercera.pctSegunda.toFixed(1)),
       'Tercera': parseFloat(resTercera.pctTercera.toFixed(1)),
-      'Cuarta': parseFloat(resTercera.pctCuarta.toFixed(1)),
-      'Merma': parseFloat(resTercera.pctMerma.toFixed(1)),
+      'Cuarta':  parseFloat(resTercera.pctCuarta.toFixed(1)),
+      'Quinta':  parseFloat(resTercera.pctQuinta.toFixed(1)),
+      'Merma':   parseFloat(resTercera.pctMerma.toFixed(1)),
     });
   }
   if (hasCuarta) {
@@ -43,11 +44,12 @@ export function SamplingResultsChart() {
           <YAxis tick={{ fontSize: 12 }} unit="%" domain={[0, 100]} />
           <Tooltip formatter={(v) => [`${v}%`, '']} />
           <Legend />
-          <Bar dataKey="Segunda" fill="#4ade80" />
-          <Bar dataKey="Tercera" fill="#16a34a" />
-          <Bar dataKey="Cuarta" fill="#2563eb" />
+          <Bar dataKey="Segunda"     fill="#4ade80" />
+          <Bar dataKey="Tercera"     fill="#16a34a" />
+          <Bar dataKey="Cuarta"      fill="#2563eb" />
           <Bar dataKey="Cuarta Chica" fill="#93c5fd" />
-          <Bar dataKey="Merma" fill="#f87171" />
+          <Bar dataKey="Quinta"      fill="#a78bfa" />
+          <Bar dataKey="Merma"       fill="#f87171" />
         </BarChart>
       </ResponsiveContainer>
     </Card>

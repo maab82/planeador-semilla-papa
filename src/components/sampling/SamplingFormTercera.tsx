@@ -15,6 +15,7 @@ const emptyForm = (): Omit<SampleTercera, 'id'> => ({
   unidadesSegunda: 0,
   unidadesTercera: 0,
   unidadesCuarta: 0,
+  unidadesQuinta: 0,
   unidadesMerma: 0,
   origen: undefined,
   variedad: undefined,
@@ -33,9 +34,10 @@ function SampleCard({ s, index, onDelete }: {
   index: number;
   onDelete: (id: string) => void;
 }) {
-  const total = s.unidadesSegunda + s.unidadesTercera + s.unidadesCuarta + s.unidadesMerma;
+  const quinta = s.unidadesQuinta ?? 0;
+  const total = s.unidadesSegunda + s.unidadesTercera + s.unidadesCuarta + quinta + s.unidadesMerma;
   const pctMerma = total > 0 ? ((s.unidadesMerma / total) * 100).toFixed(0) : '0';
-  const pctUtil = total > 0 ? (((total - s.unidadesMerma) / total) * 100).toFixed(0) : '0';
+  const pctUtil = total > 0 ? (((s.unidadesSegunda + s.unidadesTercera + s.unidadesCuarta) / total) * 100).toFixed(0) : '0';
 
   return (
     <div className="border border-gray-200 rounded-xl p-3 bg-white hover:border-green-300 transition-colors">
@@ -67,13 +69,14 @@ function SampleCard({ s, index, onDelete }: {
         </button>
       </div>
 
-      <div className="grid grid-cols-5 gap-1 text-center">
+      <div className="grid grid-cols-6 gap-1 text-center">
         {[
-          { label: '2da', value: s.unidadesSegunda, color: 'text-green-700' },
-          { label: '3ra', value: s.unidadesTercera, color: 'text-green-700' },
-          { label: '4ta', value: s.unidadesCuarta, color: 'text-yellow-600' },
-          { label: 'Merma', value: s.unidadesMerma, color: 'text-red-500' },
-          { label: 'Total', value: total, color: 'text-gray-800 font-semibold' },
+          { label: '2da',   value: s.unidadesSegunda, color: 'text-green-700' },
+          { label: '3ra',   value: s.unidadesTercera, color: 'text-green-700' },
+          { label: '4ta',   value: s.unidadesCuarta,  color: 'text-yellow-600' },
+          { label: 'Qta',   value: quinta,             color: 'text-violet-500' },
+          { label: 'Merma', value: s.unidadesMerma,   color: 'text-red-500' },
+          { label: 'Total', value: total,              color: 'text-gray-800 font-semibold' },
         ].map(({ label, value, color }) => (
           <div key={label} className="bg-gray-50 rounded-lg py-1 px-0.5">
             <p className={`text-sm font-medium ${color}`}>{value}</p>
@@ -104,6 +107,7 @@ export function SamplingFormTercera() {
       unidadesSegunda: form.unidadesSegunda,
       unidadesTercera: form.unidadesTercera,
       unidadesCuarta: form.unidadesCuarta,
+      unidadesQuinta: form.unidadesQuinta ?? 0,
       unidadesMerma: form.unidadesMerma,
       ...(form.origen ? { origen: form.origen } : {}),
       ...(form.variedad ? { variedad: form.variedad } : {}),
@@ -221,6 +225,7 @@ export function SamplingFormTercera() {
               <Input label="Unidades Segunda" type="number" min={0} value={form.unidadesSegunda || ''} placeholder="0" onChange={(e) => handleNum('unidadesSegunda', e.target.value)} />
               <Input label="Unidades Tercera" type="number" min={0} value={form.unidadesTercera || ''} placeholder="0" onChange={(e) => handleNum('unidadesTercera', e.target.value)} />
               <Input label="Unidades Cuarta" type="number" min={0} value={form.unidadesCuarta || ''} placeholder="0" onChange={(e) => handleNum('unidadesCuarta', e.target.value)} />
+              <Input label="Unidades Quinta" type="number" min={0} value={form.unidadesQuinta || ''} placeholder="0" onChange={(e) => handleNum('unidadesQuinta', e.target.value)} />
               <Input label="Unidades Merma" type="number" min={0} value={form.unidadesMerma || ''} placeholder="0" onChange={(e) => handleNum('unidadesMerma', e.target.value)} />
             </div>
           </div>

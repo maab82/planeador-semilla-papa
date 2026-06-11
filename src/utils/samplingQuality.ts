@@ -31,33 +31,38 @@ export function clasificarCalidad(pctUtil: number, pctMerma: number): CalidadNiv
 }
 
 export function evaluarTercera(s: SampleTercera): CalidadMuestra {
-  const total = s.unidadesSegunda + s.unidadesTercera + s.unidadesCuarta + s.unidadesMerma;
+  const quinta = s.unidadesQuinta ?? 0;
+  const total = s.unidadesSegunda + s.unidadesTercera + s.unidadesCuarta + quinta + s.unidadesMerma;
   if (total === 0) {
     return {
       id: s.id, calibre: 'tercera',
       origen: s.origen, variedad: s.variedad, lote: s.lote, fecha: s.fecha,
-      pctUtil: 0, pctMerma: 0, nivel: 'deficiente', alertas: [],
-      detalles: { segunda: 0, tercera: 0, cuarta: 0, merma: 0 },
+      pctUtil: 0, pctMerma: 0, pctQuinta: 0, nivel: 'deficiente', alertas: [],
+      detalles: { segunda: 0, tercera: 0, cuarta: 0, quinta: 0, merma: 0 },
     };
   }
   const pct = (n: number) => (n / total) * 100;
   const pctSegunda = pct(s.unidadesSegunda);
   const pctTercera = pct(s.unidadesTercera);
   const pctCuarta = pct(s.unidadesCuarta);
+  const pctQuinta = pct(quinta);
   const pctMerma = pct(s.unidadesMerma);
+  // Quinta no es semilla aprovechable: no cuenta como útil
   const pctUtil = pctSegunda + pctTercera + pctCuarta;
 
   const alertas: AlertaMuestra[] = [];
   if (pctMerma >= 8) alertas.push({ tipo: 'danger', mensaje: `Merma muy alta: ${pctMerma.toFixed(1)}% (umbral 8%)` });
   else if (pctMerma >= 5) alertas.push({ tipo: 'warning', mensaje: `Merma elevada: ${pctMerma.toFixed(1)}%` });
+  if (pctQuinta > 20) alertas.push({ tipo: 'danger', mensaje: `Quinta muy alta: ${pctQuinta.toFixed(1)}% — viaje con exceso de calibres muy pequeños` });
+  else if (pctQuinta > 10) alertas.push({ tipo: 'warning', mensaje: `Quinta elevada: ${pctQuinta.toFixed(1)}% — semilla muy pequeña fuera de calibre` });
   if (pctCuarta >= 30) alertas.push({ tipo: 'warning', mensaje: `Cuarta elevada: ${pctCuarta.toFixed(1)}% — considerar calibración` });
-  if (pctMerma < 2 && pctUtil >= 90) alertas.push({ tipo: 'success', mensaje: 'Excelente uniformidad y muy baja merma' });
+  if (pctMerma < 2 && pctQuinta <= 5 && pctUtil >= 90) alertas.push({ tipo: 'success', mensaje: 'Excelente uniformidad y muy baja merma' });
 
   return {
     id: s.id, calibre: 'tercera',
     origen: s.origen, variedad: s.variedad, lote: s.lote, fecha: s.fecha,
-    pctUtil, pctMerma, nivel: clasificarCalidad(pctUtil, pctMerma), alertas,
-    detalles: { segunda: pctSegunda, tercera: pctTercera, cuarta: pctCuarta, merma: pctMerma },
+    pctUtil, pctMerma, pctQuinta, nivel: clasificarCalidad(pctUtil, pctMerma), alertas,
+    detalles: { segunda: pctSegunda, tercera: pctTercera, cuarta: pctCuarta, quinta: pctQuinta, merma: pctMerma },
   };
 }
 
