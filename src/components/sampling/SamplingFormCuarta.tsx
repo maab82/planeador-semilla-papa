@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, FlaskConical, MapPin, Leaf, Package, Calendar, Truck, Weight } from 'lucide-react';
+import { Plus, Trash2, FlaskConical, MapPin, Leaf, Package, Calendar, Truck } from 'lucide-react';
 import { Card } from '../common/Card';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
@@ -263,21 +263,7 @@ export function SamplingFormCuarta() {
                   <option value="otra">Otra</option>
                 </select>
               </div>
-              {/* Toneladas del Viaje */}
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
-                  <Weight size={10} /> Peso de la muestra (kg)
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  step={0.1}
-                  className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  value={form.toneladasViaje ?? ''}
-                  placeholder="0.0"
-                  onChange={(e) => setForm((prev) => ({ ...prev, toneladasViaje: parseFloat(e.target.value) || undefined }))}
-                />
-              </div>
+              {/* Toneladas del Viaje — eliminado del formulario (campo toneladasViaje conservado en tipo para compat. histórica) */}
             </div>
           </div>
 
@@ -287,7 +273,7 @@ export function SamplingFormCuarta() {
               <FlaskConical size={11} /> Conteo de calibres
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <Input label="Peso Muestra" type="number" min={0} step={0.1} unit="kg" value={form.pesoMuestra || ''} placeholder="0" onChange={(e) => handleNum('pesoMuestra', e.target.value)} />
+              <Input label="Peso de la arpilla (kg)" type="number" min={0} step={0.1} unit="kg" value={form.pesoMuestra || ''} placeholder="0" onChange={(e) => handleNum('pesoMuestra', e.target.value)} />
               <Input label="Unidades Tercera" type="number" min={0} value={form.unidadesTercera || ''} placeholder="0" onChange={(e) => handleNum('unidadesTercera', e.target.value)} />
               <Input label="Unidades Cuarta" type="number" min={0} value={form.unidadesCuarta || ''} placeholder="0" onChange={(e) => handleNum('unidadesCuarta', e.target.value)} />
               <Input label="Unidades Cuarta Chica" type="number" min={0} value={form.unidadesCuartaChica || ''} placeholder="0" onChange={(e) => handleNum('unidadesCuartaChica', e.target.value)} />
