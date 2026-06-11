@@ -9,7 +9,15 @@ export interface SampleMeta {
   viaje?: string;          // "No. de Viaje / Thermo" — v1.4
   fecha?: string;          // kept for backward compat — use fechaRecepcion for new records
   fechaRecepcion?: string; // v1.4
-  toneladasViaje?: number; // v1.4, optional
+  toneladasViaje?: number; // v1.4, optional (not shown in UI)
+  // v1.5 — kg por dimensión de calidad (todos opcionales, default 0)
+  kgSegunda?: number;
+  kgTercera?: number;
+  kgCuarta?: number;
+  kgQuinta?: number;
+  kgNoAprovechable?: number; // novenitas / sexta en adelante
+  kgTierra?: number;         // tierra / material inerte
+  kgSanidad?: number;        // Fusarium / pudriciones / otros defectos
 }
 
 export interface SampleTercera extends SampleMeta {

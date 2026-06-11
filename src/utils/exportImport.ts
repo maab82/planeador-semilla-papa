@@ -25,8 +25,15 @@ function sanitizeSampling(raw: Record<string, unknown>): SamplingState {
     // v1.4: fechaRecepcion replaces fecha — migrate fecha→fechaRecepcion if absent
     fecha:          (m['fecha']          as string | undefined) ?? undefined,
     fechaRecepcion: (m['fechaRecepcion'] as string | undefined) ?? (m['fecha'] as string | undefined) ?? undefined,
-    toneladasViaje: (m['toneladasViaje'] as number | undefined) ?? undefined,
-    // suppress unused param warning
+    toneladasViaje:    (m['toneladasViaje']    as number | undefined) ?? undefined,
+    // v1.5: kg por dimensión de calidad — default 0 para registros históricos
+    kgSegunda:         (m['kgSegunda']         as number | undefined) ?? 0,
+    kgTercera:         (m['kgTercera']         as number | undefined) ?? 0,
+    kgCuarta:          (m['kgCuarta']          as number | undefined) ?? 0,
+    kgQuinta:          (m['kgQuinta']          as number | undefined) ?? 0,
+    kgNoAprovechable:  (m['kgNoAprovechable']  as number | undefined) ?? 0,
+    kgTierra:          (m['kgTierra']          as number | undefined) ?? 0,
+    kgSanidad:         (m['kgSanidad']         as number | undefined) ?? 0,
     _: tipo,
   });
 
@@ -44,6 +51,10 @@ function sanitizeSampling(raw: Record<string, unknown>): SamplingState {
       lote: meta.lote, viaje: meta.viaje,
       fecha: meta.fecha, fechaRecepcion: meta.fechaRecepcion,
       toneladasViaje: meta.toneladasViaje,
+      kgSegunda: meta.kgSegunda, kgTercera: meta.kgTercera,
+      kgCuarta: meta.kgCuarta, kgQuinta: meta.kgQuinta,
+      kgNoAprovechable: meta.kgNoAprovechable,
+      kgTierra: meta.kgTierra, kgSanidad: meta.kgSanidad,
     };
   });
   const muestreosCuarta: SampleCuarta[] = (raw['muestreosCuarta'] as Record<string, unknown>[] ?? []).map((m) => {
@@ -60,6 +71,10 @@ function sanitizeSampling(raw: Record<string, unknown>): SamplingState {
       lote: meta.lote, viaje: meta.viaje,
       fecha: meta.fecha, fechaRecepcion: meta.fechaRecepcion,
       toneladasViaje: meta.toneladasViaje,
+      kgSegunda: meta.kgSegunda, kgTercera: meta.kgTercera,
+      kgCuarta: meta.kgCuarta, kgQuinta: meta.kgQuinta,
+      kgNoAprovechable: meta.kgNoAprovechable,
+      kgTierra: meta.kgTierra, kgSanidad: meta.kgSanidad,
     };
   });
   return { muestreosTercera, muestreosCuarta };
@@ -85,7 +100,7 @@ export function exportarDatos(
   notas: NotasState,
 ): void {
   const data: AppData = {
-    version: '1.4',
+    version: '1.5',
     exportedAt: new Date().toISOString(),
     inventory,
     sampling,
