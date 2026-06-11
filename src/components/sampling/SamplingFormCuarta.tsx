@@ -266,7 +266,7 @@ export function SamplingFormCuarta() {
               {/* Toneladas del Viaje */}
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
-                  <Weight size={10} /> Tons. del Viaje
+                  <Weight size={10} /> Peso de la muestra (kg)
                 </label>
                 <input
                   type="number"
